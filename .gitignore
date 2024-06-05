@@ -3,6 +3,8 @@
 venv
 
 settings-me.yaml
+weaviate_query.ipynb
+test_1.ipynb
 
 .ruff_cache
 .pytest_cache
@@ -34,5 +36,3 @@ weaviate_data
 weaviate_data.zip
 monitoring
 rerank
-weaviate_query.ipynb
-test_1.ipynb

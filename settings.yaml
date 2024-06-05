@@ -53,12 +53,12 @@ rag:
     top_n: 3
     mode: model_api
 
-  translation:
-    enabled: true
-    mode: triton
-    model: nllb-200-distilled-600M
-    src_lang: vie_Latn
-    tag_lang: eng_Latn
+translation:
+  enabled: true
+  mode: triton
+  model: nllb-200-distilled-600M
+  src_lang: vie_Latn
+  tag_lang: eng_Latn
 
 hybrid_retriever_v1:
   retrieval_top_k: 5
@@ -170,4 +170,3 @@ vllm:
 text_embeddings_inference:
   text_embeddings_inference_endpoint: http://127.0.0.1:8080
   timeout: 60
-

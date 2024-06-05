@@ -41,12 +41,12 @@ rag:
     top_n: 3
     mode: model_api
 
-  translation:
-    enabled: true
-    mode: triton
-    model: nllb-200-distilled-600M
-    src_lang: vie_Latn
-    tag_lang: eng_Latn
+translation:
+  enabled: true
+  mode: triton
+  model: nllb-200-distilled-600M
+  src_lang: vie_Latn
+  tag_lang: eng_Latn
     
 translation_tokenizer:
   pretrained_model_name_or_path: ${TOKENIZER_PRETRAINED:-facebook/nllb-200-distilled-600M}

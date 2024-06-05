@@ -379,8 +379,10 @@ class HybridRetrieverV2Settings(BaseModel):
 
 
 class TranslationSettings(BaseModel):
-    enabled: bool = Field(True)
-    mode: Literal["triton"] = Field("triton")
+    enabled: bool
+    mode: Literal[
+        "triton",
+    ]
     model: str = Field(
         "nllb-200-distilled-600M", description="Model using for translation"
     )
@@ -399,8 +401,7 @@ class RagSettings(BaseModel):
     )
     rerank: RerankSettings
     custom_retriever: CustomRetrieverSettings
-    translation: TranslationSettings
-
+    
 
 class PostgresSettings(BaseModel):
     host: str = Field(
@@ -532,8 +533,8 @@ class Settings(BaseModel):
     hybrid_retriever_v1: HybridRetrieverV1Settings
     hybrid_retriever_v2: HybridRetrieverV2Settings
     translation: TranslationSettings
-    translation_tokenizer: TranslationTokenizerSettings
-    translation_triton_server: TranslationTritonServerSettings
+    # translation_tokenizer: TranslationTokenizerSettings
+    # translation_triton_server: TranslationTritonServerSettings
 
 
 """
