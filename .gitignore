@@ -35,3 +35,5 @@ weaviate_data
 weaviate_data.zip
 monitoring
 rerank
+weaviate_query.ipynb
+test_1.ipynb
