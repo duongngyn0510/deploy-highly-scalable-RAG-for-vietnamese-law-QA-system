@@ -1,0 +1,81 @@
+version: '3.4'
+services:
+  # weaviate:
+  #   command:
+  #   - --host
+  #   - 0.0.0.0
+  #   - --port
+  #   - '8080'
+  #   - --scheme
+  #   - http
+  #   image: semitechnologies/weaviate:1.23.9
+  #   ports:
+  #   - 9091:8080
+  #   - 50051:50051
+  #   volumes:
+  #   - ./weaviate_data:/var/lib/weaviate
+  #   # restart: on-failure:0
+  #   # restart: always
+  #   environment:
+  #     QUERY_DEFAULTS_LIMIT: 50
+  #     AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+  #     PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+  #     DISK_USE_READONLY_PERCENTAGE: 100
+  #     DISK_USE_WARNING_PERCENTAGE: 100
+  #     DEFAULT_VECTORIZER_MODULE: 'none'
+  #     ENABLE_MODULES: ''
+  #     CLUSTER_HOSTNAME: 'node1'
+  #     # AUTHENTICATION_APIKEY_ENABLED: true
+  #     # AUTHENTICATION_APIKEY_ALLOWED_KEYS: 'jane-secret-key,ian-secret-key'
+  #     # AUTHENTICATION_APIKEY_USERS: 'jane@doe.com,ian-smith'
+
+  #     # AUTHORIZATION_ADMINLIST_ENABLED: 'true'
+  #     # AUTHORIZATION_ADMINLIST_USERS: 'jane@doe.com'
+  #     # AUTHORIZATION_ADMINLIST_READONLY_USERS: 'ian-smith'
+  #     # PROMETHEUS_MONITORING_ENABLED: true
+      
+  # embeddings:
+  #   image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.2
+  #   command: ["--model-id", "nhatminh/vietnamese_bi_encoder"]
+  #   volumes:
+  #     - /home/duongntd/data:/data
+  #   ports:
+  #     - 8082:80
+  #   environment:
+  #     HUGGING_FACE_HUB_TOKEN: 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
+
+  legal-rag:
+    build:
+      dockerfile: Dockerfile.external
+    image: docker.io/duong05102002/legal-rag:v0.0.4
+    # command: uvicorn main:app --reload --host 0.0.0.0 --port 8080 --log-config logging.yml
+    volumes:
+      - ./local_data/:/home/worker/app/local_data
+    # network_mode: "host"    
+    ports:
+      - 8099:8080
+    depends_on:
+      - embeddings
+      - weaviate
+    environment:
+      PGPT_PROFILES: docker
+      RAG_WORKERS: 1
+      LLM_MODE: vllm
+      EMBEDDING_MODE: text_embeddings_inference
+      VECTOR_STORE: weaviate
+      VLLM_ENDPOINT: http://103.145.79.20:6017/v1/completions
+      TEXT_EMBEDDINGS_INFERENCE_ENDPOINT: http://embeddings:80
+      WEAVIATE_ENDPOINT: http://weaviate:8080
+
+  # rerank:
+  #   image: rerank:v1.0
+  #   volumes:
+  #     - /home/duongntd/.cache/huggingface/hub/.locks/models--BAAI--bge-reranker-base:/home/api/.cache/huggingface/hub/.locks/models--BAAI--bge-reranker-base
+  #     - /home/duongntd/.cache/huggingface/hub/models--BAAI--bge-reranker-base:/home/api/.cache/huggingface/hub/models--BAAI--bge-reranker-base
+  #   entrypoint: >
+  #     uvicorn main:app --host 0.0.0.0 --port 8084 --log-level info --workers=1
+  #   ports:
+  #     - 8084:8084
+  #   shm_size: 7gb
+    # environment:
+    #   MODEL_NAME: BAAI/bge-reranker-base
