@@ -36,7 +36,7 @@ pipeline {
                 kubernetes {
                     containerTemplate {
                         name 'helm' // Name of the container to be used for helm upgrade
-                        image 'asia.gcr.io/legal-rag/jenkins_helm:v0.1' // The image containing helm
+                        image 'duong05102002/jenkins-k8s:latest' // The image containing helm
                     }
                 }
             }
