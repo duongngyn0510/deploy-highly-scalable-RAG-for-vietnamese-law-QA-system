@@ -169,7 +169,8 @@ class LLMComponent:
 
             case "vllm":
                 try:
-                    from src.components.llm.custom.vllm.base import VllmServer
+                    # from src.components.llm.custom.vllm.base import VllmServer
+                    from llama_index.llms.vllm import VllmServer
                 except ImportError as e:
                     raise ImportError(
                         "Vllm Server not found, please implement it"
@@ -179,9 +180,9 @@ class LLMComponent:
                 vllm_settings = settings.vllm
                 self.llm = VllmServer(
                     api_url=vllm_settings.vllm_endpoint,
-                    model=vllm_settings.llm_model,
-                    temperature=vllm_settings.temperature,
-                    max_tokens=vllm_settings.max_tokens,
+                    # model=vllm_settings.llm_model,
+                    # temperature=vllm_settings.temperature,
+                    max_new_tokens=vllm_settings.max_tokens,
                     messages_to_prompt=prompt_style.messages_to_prompt,
                     completion_to_prompt=prompt_style.completion_to_prompt,
                 )

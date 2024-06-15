@@ -14,7 +14,9 @@ FROM base as dependencies
 WORKDIR /home/worker/app
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --extras "ui weaviate triton-client"
+RUN poetry install --extras "ui weaviate"
+
+RUN pip install tritonclient[all]==2.46.0
 
 FROM base as app
 
@@ -23,17 +25,20 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Prepare a non-root user
-RUN adduser --system worker
+# RUN adduser --system worker
 WORKDIR /home/worker/app
 
-COPY --chown=worker --from=dependencies /home/worker/app/.venv/ .venv
-COPY --chown=worker src/ src
-COPY --chown=worker *.yaml ./
-COPY --chown=worker main.py main.py
+# COPY --chown=worker --from=dependencies /home/worker/app/.venv/ .venv
+# COPY --chown=worker --chmod=700 src/ src
+# COPY --chown=worker *.yaml ./
+# COPY --chown=worker main.py main.py
 
-USER worker
+COPY --from=dependencies /home/worker/app/.venv/ .venv
+COPY --chmod=700 src/ src
+COPY *.yaml ./
+COPY main.py main.py
 
-RUN pip install gunicorn
+# USER worker
 
 ENTRYPOINT gunicorn main:app \
     --bind 0.0.0.0:${PORT}  \

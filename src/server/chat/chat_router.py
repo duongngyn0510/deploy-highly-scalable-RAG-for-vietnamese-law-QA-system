@@ -11,8 +11,25 @@ from src.open_ai.openai_models import (
 )
 from src.server.chat.chat_service import ChatService
 from src.server.utils.auth import authenticated
+from src.settings.settings import TranslationSettings
 
 chat_router = APIRouter(prefix="/v1", dependencies=[Depends(authenticated)])
+
+# if TranslationSettings.enabled:
+from transformers import AutoTokenizer
+
+# tokenizer_src = AutoTokenizer.from_pretrained(
+#     pretrained_model_name_or_path="facebook/nllb-200-distilled-600M",
+#     src_lang="vie_Latn",
+# )
+# tokenizer_tag = AutoTokenizer.from_pretrained(
+#     pretrained_model_name_or_path="facebook/nllb-200-distilled-600M",
+#     src_lang="eng_Latn",
+# )
+# tokenizer_src = AutoTokenizer.from_pretrained("VietAI/envit5-translation")  
+tokenizer_src = None
+tokenizer_tag = None
+
 
 
 class ChatBody(BaseModel):
@@ -77,6 +94,8 @@ def chat_completion(
         completion_gen = service.stream_chat(
             messages=all_messages,
             use_context=body.use_context,
+            tokenizer_src=tokenizer_src,
+            tokenizer_tag=tokenizer_tag,
         )
         return StreamingResponse(
             to_openai_sse_stream(
@@ -88,5 +107,7 @@ def chat_completion(
         completion = service.chat(
             messages=all_messages,
             use_context=body.use_context,
+            tokenizer_src=tokenizer_src,
+            tokenizer_tag=tokenizer_tag,
         )
         return to_openai_response(completion.response)

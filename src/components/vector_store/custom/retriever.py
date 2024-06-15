@@ -139,12 +139,20 @@ class HybridRetrieverV2(BaseRetriever):
             max_bm25_score = max(max_bm25_score, node.metadata["bm25_score"])
             min_bm25_score = min(min_bm25_score, node.metadata["bm25_score"])
 
-        for node in all_nodes.values():
-            bm25_score = (node.metadata["bm25_score"] - min_bm25_score) / max_bm25_score
-            dense_score = (
-                node.metadata["dense_score"] - min_dense_score
-            ) / max_dense_score
-            node.score = self.alpha * dense_score + (1 - self.alpha) * bm25_score
+        try:
+            for node in all_nodes.values():
+                bm25_score = (
+                    node.metadata["bm25_score"] - min_bm25_score
+                ) / max_bm25_score
+                dense_score = (
+                    node.metadata["dense_score"] - min_dense_score
+                ) / max_dense_score
+                node.score = self.alpha * dense_score + (1 - self.alpha) * bm25_score
+
+        # No value after dense and bm25 search
+        # max_bm25_score = 0, max_dense_score = 0
+        except:
+            return []
 
         all_nodes = sorted(all_nodes.values(), key=lambda x: -x.score)
         x = [

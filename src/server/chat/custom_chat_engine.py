@@ -21,7 +21,7 @@ from llama_index.core.settings import (
     callback_manager_from_settings_or_context,
     llm_from_settings_or_context,
 )
-from src.components.translate.base import BaseTranslation
+from src.components.translation.base import BaseTranslation
 from src.settings.settings import Settings as RepoSettings
 
 
@@ -38,9 +38,9 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
     """Context Chat Engine.
 
     Uses a retriever to retrieve a context, set the context in the system prompt,
-    and then translate from Vietnamese to English if necessary,
+    and then translation from Vietnamese to English if necessary,
     after that uses an LLM to generate a response for a fluid chat experience.
-    Finally, translate back to original language (vietnameses)
+    Finally, translation back to original language (vietnameses)
     """
 
     def __init__(
@@ -51,6 +51,8 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
         prefix_messages: List[ChatMessage],
         translation: BaseTranslation = None,
         repo_settings: RepoSettings = None,
+        tokenizer_src=None,
+        tokenizer_tag=None,
         node_postprocessors: Optional[List[BaseNodePostprocessor]] = None,
         context_template: Optional[str] = None,
         callback_manager: Optional[CallbackManager] = None,
@@ -59,11 +61,12 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
         self._llm = llm
         self._translation = translation
         self._repo_settings = repo_settings
+        self._tokenizer_src = tokenizer_src
+        self._tokenizer_tag = tokenizer_tag
         self._memory = memory
         self._prefix_messages = prefix_messages
         self._node_postprocessors = node_postprocessors or []
         self._context_template = context_template or DEFAULT_CONTEXT_TEMPLATE
-
         self.callback_manager = callback_manager or CallbackManager([])
         for node_postprocessor in self._node_postprocessors:
             node_postprocessor.callback_manager = self.callback_manager
@@ -82,6 +85,8 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
         llm: Optional[LLM] = None,
         translation: BaseTranslation = None,
         repo_settings: RepoSettings = None,
+        tokenizer_src=None,
+        tokenizer_tag=None,
         **kwargs: Any,
     ) -> "CustomChatEngine":
         """Initialize a ContextChatEngine from default parameters."""
@@ -113,76 +118,50 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
             ),
             context_template=context_template,
             translation=translation,
-            repo_settings=repo_settings
+            repo_settings=repo_settings,
+            tokenizer_src=tokenizer_src,
+            tokenizer_tag=tokenizer_tag,
         )
 
-    def _preprocess_message_for_translation(self, message: str) -> List[str]:
-        message_list = []
-        len_list = []
-        len_list.append(0)
-        for mess in message.split("\n"):
-            mess = mess.strip()
-            mess_list = mess.split(";")
-            message_list.extend(mess_list)
-            len_list.append(len_list[-1] + len(mess_list))
-
-        return message_list, len_list
-
-    def _postprocess_message_for_translation(
-        self, translated_list: List[str], len_list: List[int], forward: bool
-    ) -> str:
-        tag_lang = (
-            self._repo_settings.translation.tag_lang
-            if forward
-            else self._repo_settings.translation.src_lang
+    def _translate(self, input_message: str, context_str: str, forward: bool):
+        translated_input_message, translated_context_str = self._translation.translation_pipeline(
+            input_message=input_message,
+            context_str=context_str,
+            forward=forward,
+            tokenizer=self._tokenizer_src
         )
-        res = ""
-        pre = 0
-        for id in len_list[1:]:
-            for idx in range(pre, id):
-                res += translated_list[idx].split(tag_lang)[-1].strip() + ";"
-            res = res.strip().strip(";") + "\n"
-            pre = id
 
-        return res
-
-    def _translation_pipeline(self, message_list: List[str], forward: bool):
-        tokenizer = self._translation.get_tokenizer(forward=True)
-        input_ids = self._translation.get_input_ids(tokenizer, message_list)
-        prefix_ids = self._translation.get_prefix_ids(tokenizer, message_list, forward)
-        outputs = self._translation.infer(input_ids, prefix_ids, message_list)
-        translated_list = self._translation.decode(tokenizer, outputs, forward)
-        return translated_list
-
-    def _translate(self, message: str, forward: bool):
-        message_list, len_list = self._preprocess_message_for_translation(
-            message=message
-        )
-        translated_list = self._translation_pipeline(message_list, forward)
-        translated_sentences = self._postprocess_message_for_translation(
-            translated_list, len_list, forward
-        )
-        return translated_sentences
+        if translated_input_message is not None:
+            return translated_input_message, translated_context_str
+        print('translated_context_str', translated_context_str)
+        return translated_context_str
 
     def _generate_context(self, message: str) -> Tuple[str, List[NodeWithScore]]:
         """Generate context information from a message."""
         nodes = self._retriever.retrieve(message)
+        print("len_node", len(nodes))
         for postprocessor in self._node_postprocessors:
             nodes = postprocessor.postprocess_nodes(
                 nodes, query_bundle=QueryBundle(message)
             )
 
         context_str = "\n\n".join(
-            [
-                self._translate(
-                    n.node.get_content(metadata_mode=MetadataMode.LLM).strip(),
-                    forward=True
-                )
-                for n in nodes
-            ]
+            [n.node.get_content(metadata_mode=MetadataMode.LLM).strip() for n in nodes]
         )
 
-        return self._context_template.format(context_str=context_str), nodes
+        print('context_str', context_str)
+        translated_input_message, translated_context_str = self._translate(
+            message, context_str, forward=True
+        )
+
+        print("translated_context_str:", translated_context_str)
+        # print('translated_input_message:', translated_input_message)
+
+        return (
+            translated_input_message,
+            self._context_template.format(context_str=translated_context_str),
+            nodes,
+        )
 
     async def _agenerate_context(self, message: str) -> Tuple[str, List[NodeWithScore]]:
         """Generate context information from a message."""
@@ -191,11 +170,17 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
             nodes = postprocessor.postprocess_nodes(
                 nodes, query_bundle=QueryBundle(message)
             )
+
+        print(
+            "\n\n".join(
+                [n.node.get_content(metadata_mode=MetadataMode.LLM) for n in nodes]
+            )
+        )
         context_str = "\n\n".join(
             [
                 self._translate(
                     n.node.get_content(metadata_mode=MetadataMode.LLM).strip(),
-                    forward=True
+                    forward=True,
                 )
                 for n in nodes
             ]
@@ -227,18 +212,18 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
     def chat(
         self, message: str, chat_history: Optional[List[ChatMessage]] = None
     ) -> AgentChatResponse:
+        import time
+
+        st_time = time.time()
+        translated_input_message, context_str_template, nodes = self._generate_context(
+            message
+        )
+        print("time translate", time.time() - st_time)
+
         if chat_history is not None:
             self._memory.set(chat_history)
-        self._memory.put(
-            ChatMessage(
-                content=self._translate(messages=[message], forward=True)[
-                    0
-                ],
-                role="user",
-            )
-        )
-        
-        context_str_template, nodes = self._generate_context(message)
+        self._memory.put(ChatMessage(content=translated_input_message, role="user"))
+
         prefix_messages = self._get_prefix_messages_with_context(context_str_template)
         prefix_messages_token_count = len(
             self._memory.tokenizer_fn(
@@ -248,17 +233,20 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
         all_messages = prefix_messages + self._memory.get(
             initial_token_count=prefix_messages_token_count
         )
-        print(all_messages)
-        print("ALLLLLLL:   ", all_messages)
+
+        # print("ALLLLLLL:   ", all_messages)
+        st_time = time.time()
         chat_response = self._llm.chat(all_messages)
-        print("RESPONSEEE: ", chat_response)
+        print("time_llm", time.time() - st_time)
         ai_message = chat_response.message
         self._memory.put(ai_message)
-        print("MEM: ", self._memory)
 
+        print("respone", (chat_response.message.content))
         return AgentChatResponse(
             response=self._translate(
-                [chat_response.message.content], forward=False
+                input_message=None,
+                context_str=chat_response.message.content,
+                forward=False,
             ),
             sources=[
                 ToolOutput(
@@ -277,16 +265,13 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
     ) -> StreamingAgentChatResponse:
         if chat_history is not None:
             self._memory.set(chat_history)
-        self._memory.put(
-            ChatMessage(
-                content=self._translate(messages=[message], forward=True)[
-                    0
-                ],
-                role="user",
-            )
+
+        translated_input_message, context_str_template, nodes = self._generate_context(
+            message
         )
 
-        context_str_template, nodes = self._generate_context(message)
+        self._memory.put(ChatMessage(content=translated_input_message, role="user"))
+
         prefix_messages = self._get_prefix_messages_with_context(context_str_template)
         initial_token_count = len(
             self._memory.tokenizer_fn(
@@ -324,9 +309,7 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
             self._memory.set(chat_history)
         self._memory.put(
             ChatMessage(
-                content=self._translate(messages=[message], forward=True)[
-                    0
-                ],
+                content=self._translate(message=message, forward=True)[0],
                 role="user",
             )
         )
@@ -367,9 +350,7 @@ class CustomChatEngineWithTranslation(BaseChatEngine):
             self._memory.set(chat_history)
         self._memory.put(
             ChatMessage(
-                content=self._translate(messages=[message], forward=True)[
-                    0
-                ],
+                content=self._translate(messages=message, forward=True)[0],
                 role="user",
             )
         )

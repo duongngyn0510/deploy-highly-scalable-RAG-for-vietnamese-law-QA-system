@@ -3,27 +3,27 @@ server:
   port: ${PORT:8080}
 
 llm:
-  mode: ${LLM_MODE:-vllm}
+  mode: ${LLM_MODE:vllm}
 
 embedding:
-  mode: ${EMBEDDING_MODE:-text_embeddings_inference}
+  mode: ${EMBEDDING_MODE:text_embeddings_inference}
 
 vectorstore:
-  database: ${VECTOR_STORE:-weaviate}
+  database: ${VECTOR_STORE:weaviate}
 
 vllm:
-  vllm_endpoint: ${VLLM_ENDPOINT:-http://103.145.79.20:6017/v1/completions}
-  llm_model: Viet-Mistral/Vistral-7B-Chat
+  vllm_endpoint: ${VLLM_ENDPOINT:http://localhost:6017/v1/completions}
+  llm_model: ${LLM_MODEL:Viet-Mistral/Vistral-7B-Chat}
   prompt_style: default
   temperature: 1
-  max_tokens: 1024
+  max_tokens: 258
 
 text_embeddings_inference:
-  text_embeddings_inference_endpoint: ${TEXT_EMBEDDINGS_INFERENCE_ENDPOINT:-http://localhost:8081}
+  text_embeddings_inference_endpoint: ${TEXT_EMBEDDINGS_INFERENCE_ENDPOINT:http://localhost:8081}
   timeout: 60
 
 weaviate:
-  weaviate_endpoint: ${WEAVIATE_ENDPOINT:-http://localhost:9091}
+  weaviate_endpoint: ${WEAVIATE_ENDPOINT:http://localhost:9091}
   index_name: Law07032024
 
 rag:
@@ -42,21 +42,18 @@ rag:
     mode: model_api
 
 translation:
-  enabled: true
-  mode: triton
-  model: nllb-200-distilled-600M
-  src_lang: vie_Latn
-  tag_lang: eng_Latn
+  enabled: ${TRANSLATION_ENABLED:false}
+  mode: triton_envit5
     
 translation_tokenizer:
-  pretrained_model_name_or_path: ${TOKENIZER_PRETRAINED:-facebook/nllb-200-distilled-600M}
-  truncation: true
-  max_length: 30
-  padding: max_length
+  pretrained_model_name_or_path: VietAI/envit5-translation
+  padding: true
 
-translation_triton_server:
-  triton_server_endpoint: ${TRITON_SERVER_ENDPOINT:-localhost:8001}
-  triton_model_name: ${TRITON_MODEL_NAME:-nllb-200-distilled-600M-fp16}
+envit5_translation_triton_server:
+  triton_server_endpoint: ${TRITON_SERVER_ENDPOINT:-}
+  triton_model_name: ${TRITON_MODEL_NAME:-}
+  src_lang: vi
+  tag_lang: en
 
 model_api_rerank:
   model_api_endpoint: http://localhost:8084/rerank

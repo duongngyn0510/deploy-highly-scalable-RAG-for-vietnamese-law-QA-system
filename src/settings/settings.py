@@ -292,7 +292,8 @@ class AzureOpenAISettings(BaseModel):
 class VLLMSettings(BaseModel):
     vllm_endpoint: str
     llm_model: str = Field(
-        "mistralai/Mistral-7B-v0.1", description="The HuggingFace Model to use."
+        "mistralai/Mistral-7B-Instruct-v0.2",
+        description="The HuggingFace Model to use.",
     )
 
     prompt_style: Literal["default", "llama2", "tag", "mistral", "chatml"] = Field(
@@ -379,15 +380,11 @@ class HybridRetrieverV2Settings(BaseModel):
 
 
 class TranslationSettings(BaseModel):
-    enabled: bool
+    enabled: bool = True
     mode: Literal[
-        "triton",
+        "triton_nllb",
+        "triton_envit5",
     ]
-    model: str = Field(
-        "nllb-200-distilled-600M", description="Model using for translation"
-    )
-    src_lang: str = "vie_Latn"
-    tag_lang: str = "eng_Latn"
 
 
 class RagSettings(BaseModel):
@@ -401,7 +398,7 @@ class RagSettings(BaseModel):
     )
     rerank: RerankSettings
     custom_retriever: CustomRetrieverSettings
-    
+
 
 class PostgresSettings(BaseModel):
     host: str = Field(
@@ -496,16 +493,23 @@ class TextEmbInfSettings(BaseModel):
 
 
 class TranslationTokenizerSettings(BaseModel):
-    pretrained_model_name_or_path: str = "facebook/nllb-200-distilled-600M"
-    truncation: bool = True
-    max_length: int = 30
-    padding: bool | str = "max_length"
+    pretrained_model_name_or_path: str
+    padding: bool | str = True
 
 
-class TranslationTritonServerSettings(BaseModel):
-    triton_server_endpoint: str = "localhost:8001"
+class NllbTranslationTritonServerSettings(BaseModel):
+    triton_server_endpoint: str = "serving:8001"
     triton_model_name: str = "nllb-200-distilled-600M-fp16"
-    
+    src_lang: str = "vie_Latn"
+    tag_lang: str = "eng_Latn"
+
+
+class Envit5TranslationTritonServerSettings(BaseModel):
+    triton_server_endpoint: str = "serving:8001"
+    triton_model_name: str = "envit5"
+    src_lang: str = "vi"
+    tag_lang: str = "en"
+
 
 class Settings(BaseModel):
     server: ServerSettings
@@ -533,9 +537,9 @@ class Settings(BaseModel):
     hybrid_retriever_v1: HybridRetrieverV1Settings
     hybrid_retriever_v2: HybridRetrieverV2Settings
     translation: TranslationSettings
-    # translation_tokenizer: TranslationTokenizerSettings
-    # translation_triton_server: TranslationTritonServerSettings
-
+    translation_tokenizer: TranslationTokenizerSettings
+    nllb_translation_triton_server: NllbTranslationTritonServerSettings
+    envit5_translation_triton_server: Envit5TranslationTritonServerSettings
 
 """
 This is visible just for DI or testing purposes.

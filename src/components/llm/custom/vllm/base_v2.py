@@ -56,6 +56,8 @@ class VllmServer(LLM):
         default=0.0,
     )
 
+    echo: bool = False
+
     top_p: float = Field(
         default=1.0,
         description="Float that controls the cumulative probability of the top tokens to consider.",
@@ -116,21 +118,36 @@ class VllmServer(LLM):
 
     api_url: str = Field(description="The api url for vllm server")
 
+    logit_bias: Optional[Dict[str, float]] = None
+
+    seed: Optional[int] = None
+    use_stream: Optional[bool] = False
+    # stream_options = None
+    suffix: Optional[str] = None
+    user: Optional[str] = None
+    min_tokens: Optional[int] = 0
+    stop_token_ids: Optional[List[int]] = Field(default_factory=list)
     _client: Any = PrivateAttr()
 
     def __init__(
         self,
         api_url: str,
-        model: str = "mistralai/Mistral-7B-Instruct-v0.2",
+        model: str = "Viet-Mistral/Vistral-7B-Chat",
         temperature: float = 1.0,
         n: int = 1,
         best_of: Optional[int] = None,
         presence_penalty: float = 0.0,
         frequency_penalty: float = 0.0,
         repetition_penalty: float = 1.0,
+        logit_bias: Optional[Dict[str, float]] = None,
         top_p: float = 1.0,
         top_k: int = -1,
         min_p: int = 0,
+        suffix: Optional[str] = None,
+        user: Optional[str] = None,
+        min_tokens: Optional[int] = 0,
+        stop_token_ids: Optional[List[int]] = Field(default_factory=list),
+        seed: Optional[int] = None,
         use_beam_search: bool = False,
         length_penalty: float = 1.0,
         early_stopping: bool = False,
@@ -208,7 +225,6 @@ class VllmServer(LLM):
             "ignore_eos": self.ignore_eos,
             "max_tokens": self.max_tokens,
             "logprobs": self.logprobs,
-            "prompt_logprobs": self.prompt_logprobs,
             "skip_special_tokens": self.skip_special_tokens,
             "spaces_between_special_tokens": self.spaces_between_special_tokens,
         }
@@ -231,10 +247,11 @@ class VllmServer(LLM):
         params = {**self._model_kwargs, **kwargs}
         sampling_params = dict(**params)
         sampling_params["prompt"] = prompt
-
+        print('sampling_params', sampling_params)
         import time
         st = time.time()
         response = post_http_request(self.api_url, sampling_params, stream=False)
+        print('response', response)
         print('llm_time', time.time() -st )
         output = get_response(response)
         return CompletionResponse(text=output)
@@ -248,14 +265,16 @@ class VllmServer(LLM):
 
         sampling_params = dict(**params)
         sampling_params["prompt"] = prompt
+        sampling_params["stream"] = True
         response = post_http_request(self.api_url, sampling_params, stream=True)
-
+        print('response', response.content)
         def gen() -> CompletionResponseGen:
             # response_str = ""
             prev_prefix_len = len(prompt)
             for chunk in response.iter_lines(
                 chunk_size=8192, decode_unicode=False, delimiter=b"\0"
             ):
+                print("chunk", chunk)
                 if chunk:
                     data = json.loads(chunk.decode("utf-8"))
                     increasing_concat = data["choices"][0]["text"]

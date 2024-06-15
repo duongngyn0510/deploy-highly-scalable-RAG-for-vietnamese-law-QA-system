@@ -20,6 +20,8 @@ from src.components.vector_store.vector_store_component import (
     VectorStoreComponent,
 )
 from src.settings.settings import Settings
+from src.server.chat.custom_chat_engine import CustomChatEngineWithTranslation
+from src.components.translation.translation_component import TranslationComponent
 
 
 class Completion(BaseModel):
@@ -75,11 +77,13 @@ class ChatService:
         llm_component: LLMComponent,
         vector_store_component: VectorStoreComponent,
         embedding_component: EmbeddingComponent,
+        translation: TranslationComponent,
     ) -> None:
         self.settings = settings
         self.llm_component = llm_component
         self.embedding_component = embedding_component
         self.vector_store_component = vector_store_component
+        self.translation = translation
         self.index = VectorStoreIndex.from_vector_store(
             vector_store=vector_store_component.vector_store,
             embed_model=embedding_component.embedding_model,
@@ -89,8 +93,9 @@ class ChatService:
         self,
         system_prompt: str | None = None,
         use_context: bool = False,
+        tokenizer_src=None,
+        tokenizer_tag=None,
     ) -> BaseChatEngine:
-        settings = self.settings
         if use_context:
             if self.settings.rag.custom_retriever.enabled:
                 if self.settings.rag.custom_retriever.version == "v1":
@@ -124,30 +129,30 @@ class ChatService:
             node_postprocessors = [
                 MetadataReplacementPostProcessor(target_metadata_key="window"),
                 SimilarityPostprocessor(
-                    similarity_cutoff=settings.rag.similarity_value
+                    similarity_cutoff=self.settings.rag.similarity_value
                 ),
             ]
 
             # Using rerank ?
-            if settings.rag.rerank.enabled:
+            if self.settings.rag.rerank.enabled:
                 from src.components.rerank.rerank_component import RerankComponent
+
                 rerank_postprocessor = RerankComponent.rerank
                 node_postprocessors.append(rerank_postprocessor)
-            
+
             # Using translation ?
-            if settings.rag.translation.enabled:
-                from src.server.chat.custom_chat_engine import CustomChatEngineWithTranslation
-                from src.components.translate.translate_component import TranslateComponent
-                
-                translation = TranslateComponent.translation
+            if self.settings.translation.enabled:
+
                 return CustomChatEngineWithTranslation.from_defaults(
                     system_prompt=system_prompt,
                     retriever=vector_index_retriever,
                     llm=self.llm_component.llm,
                     node_postprocessors=node_postprocessors,
-                    translation=translation,
-                    repo_settings=settings,
-                    verbose=True
+                    translation=self.translation.translation,
+                    repo_settings=self.settings,
+                    tokenizer_src=tokenizer_src,
+                    tokenizer_tag=tokenizer_tag,
+                    verbose=True,
                 )
 
             return ContextChatEngine.from_defaults(
@@ -167,6 +172,8 @@ class ChatService:
         self,
         messages: list[ChatMessage],
         use_context: bool = False,
+        tokenizer_src=None,
+        tokenizer_tag=None,
     ) -> CompletionGen:
         chat_engine_input = ChatEngineInput.from_messages(messages)
         last_message = (
@@ -186,7 +193,10 @@ class ChatService:
         chat_engine = self._chat_engine(
             system_prompt=system_prompt,
             use_context=use_context,
+            tokenizer_src=tokenizer_src,
+            tokenizer_tag=tokenizer_tag,
         )
+
         streaming_response = chat_engine.stream_chat(
             message=last_message if last_message is not None else "",
             chat_history=chat_history,
@@ -201,6 +211,8 @@ class ChatService:
         self,
         messages: list[ChatMessage],
         use_context: bool = False,
+        tokenizer_src=None,
+        tokenizer_tag=None,
     ) -> Completion:
         chat_engine_input = ChatEngineInput.from_messages(messages)
         last_message = (
@@ -220,7 +232,10 @@ class ChatService:
         chat_engine = self._chat_engine(
             system_prompt=system_prompt,
             use_context=use_context,
+            tokenizer_src=tokenizer_src,
+            tokenizer_tag=tokenizer_tag,
         )
+
         wrapped_response = chat_engine.chat(
             message=last_message if last_message is not None else "",
             chat_history=chat_history,

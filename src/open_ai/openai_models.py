@@ -96,7 +96,8 @@ def to_openai_response(response: str | ChatResponse) -> OpenAICompletion:
         return OpenAICompletion.from_text(response.delta, finish_reason="stop")
     else:
         return OpenAICompletion.from_text(
-            response, finish_reason="stop", sources=sources
+            response,
+            finish_reason="stop",
         )
 
 

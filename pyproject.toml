@@ -33,6 +33,7 @@ llama-index-vector-stores-chroma = {version ="^0.1.4", optional = true}
 llama-index-vector-stores-postgres = {version ="^0.1.2", optional = true}
 llama-index-storage-docstore-postgres = {version ="^0.1.2", optional = true}
 llama-index-storage-index-store-postgres = {version ="^0.1.2", optional = true}
+llama-index-llms-vllm = {version = "0.1.8", optional = true}
 weaviate-client = {version = "3.26.2", optional = true}
 
 # Postgres
@@ -49,12 +50,9 @@ sentence-transformers = {version ="2.6.1", optional = true}
 # Optional UI
 gradio = {version ="4.19.2", optional = true}
 
-# Optional Triton client
-tritonclient = {version ="2.46.0", optional = true}
-gevent = {version = "24.2.1", optional = true}
-geventhttpclient = {version ="2.2.1", optional = true}
 
 [tool.poetry.extras]
+vllm = ["llama-index-llms-vllm"]
 ui = ["gradio"]
 llms-llama-cpp = ["llama-index-llms-llama-cpp"]
 llms-openai = ["llama-index-llms-openai"]
@@ -73,7 +71,6 @@ vector-stores-postgres = ["llama-index-vector-stores-postgres"]
 storage-nodestore-postgres = ["llama-index-storage-docstore-postgres","llama-index-storage-index-store-postgres","psycopg2-binary","asyncpg"]
 rerank-sentence-transformers = ["torch", "sentence-transformers"]
 weaviate = ["weaviate-client"]
-triton-client = ["tritonclient", "gevent", "geventhttpclient"]
 
 [tool.poetry.group.dev.dependencies]
 black = "^22"

@@ -39,7 +39,7 @@ llm:
   temperature: 0.1      # The temperature of the model. Increasing the temperature will make the model answer more creatively. A value of 0.1 would be more factual. (Default: 0.1)
 
 rag:
-  similarity_top_k: 50
+  similarity_top_k: 10
   #This value controls how many "top" documents the RAG returns to use in the context.
   #similarity_value: 0.45
   #This value is disabled by default.  If you enable this settings, the RAG will only use articles that meet a certain percentage score.
@@ -54,11 +54,24 @@ rag:
     mode: model_api
 
 translation:
-  enabled: true
-  mode: triton
-  model: nllb-200-distilled-600M
+  enabled: false
+  mode: triton_envit5
+
+translation_tokenizer:
+  pretrained_model_name_or_path: VietAI/envit5-translation
+  padding: true
+
+nllb_translation_triton_server:
+  triton_server_endpoint: localhost:8001
+  triton_model_name: nllb-200-distilled-600M-fp16
   src_lang: vie_Latn
   tag_lang: eng_Latn
+
+envit5_translation_triton_server:
+  triton_server_endpoint: localhost:8001
+  triton_model_name: envit5
+  src_lang: vi
+  tag_lang: en
 
 hybrid_retriever_v1:
   retrieval_top_k: 5
@@ -69,9 +82,9 @@ hybrid_retriever_v1:
 
 hybrid_retriever_v2:
   retrieval_top_k: 5
-  dense_threshold: 0.1
+  dense_threshold: 0.0
   # RAG will only use articles that meet a 0.35 percentage dense score.
-  bm25_threshold: 1.0
+  bm25_threshold: 0.0
   # RAG will only use articles that meet a 8.0 percentage bm25 score.
   alpha: 0.8
 
@@ -83,16 +96,6 @@ local_rerank:
 
 text_embeddings_inference_rerank:
   text_embeddings_inference_endpoint: ${TEXT_EMBEDDINGS_INFERENCE_ENDPOINT:}
-  
-translation_tokenizer:
-  pretrained_model_name_or_path: facebook/nllb-200-distilled-600M
-  truncation: true
-  max_length: 30
-  padding: max_length
-
-translation_triton_server:
-  triton_server_endpoint: localhost:8001
-  triton_model_name: nllb-200-distilled-600M-fp16
 
 llamacpp:
   prompt_style: "mistral"
@@ -162,7 +165,7 @@ azopenai:
 vllm:
   vllm_endpoint: ${VLLM_ENDPOINT:}
   # api_url: http://localhost:8000/v1/completions
-  llm_model: Viet-Mistral/Vistral-7B-Chat
+  llm_model: ${LLM_MODEL:Viet-Mistral/Vistral-7B-Chat}
   prompt_style: default
   temperature: 1
   max_tokens: 256
@@ -170,3 +173,4 @@ vllm:
 text_embeddings_inference:
   text_embeddings_inference_endpoint: http://127.0.0.1:8080
   timeout: 60
+

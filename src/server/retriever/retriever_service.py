@@ -76,12 +76,16 @@ class RetrieverService:
 
         nodes = vector_index_retriever.retrieve(text)
         if self.settings.translation.enabled:
-            from src.server.chat.custom_chat_engine import CustomChatEngineWithTranslation
-            from src.components.translate.translate_component import TranslateComponent
-            
+            from src.server.chat.custom_chat_engine import (
+                CustomChatEngineWithTranslation,
+            )
+            from src.components.translation.translation_component import (
+                TranslationComponent,
+            )
+
             # context_str = "\n\n".join(
             #     [
-            #         self._translate(
+            #         self._translation(
             #             n.node.get_content(metadata_mode=MetadataMode.LLM).strip(),
             #             forward=True
             #         )
@@ -89,7 +93,7 @@ class RetrieverService:
             #     ]
             # )
         return len(nodes)
- 
+
         #     node_postprocessors.append(rerank_postprocessor)
 
     def retrieve(self, text: str) -> int:
