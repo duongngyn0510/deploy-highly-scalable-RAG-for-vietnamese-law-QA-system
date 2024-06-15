@@ -4,7 +4,7 @@ pipeline {
     environment {
         PROJECT_ID = 'legal-rag'
         REPOSITORY_NAME = 'test'
-        GCR_URL = "gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/test_image"
+        GCR_URL = "asia.gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/test_image"
     }
     
     stages {
@@ -24,7 +24,7 @@ pipeline {
         stage('Push to GCR') {
             steps {
                 script {
-                    docker.withRegistry('https://gcr.io', 'google_registry') {
+                    docker.withRegistry('https://asia.gcr.io', 'google_registry') {
                         docker.image("${GCR_URL}:${BUILD_NUMBER}").push()
                     }
                 }
