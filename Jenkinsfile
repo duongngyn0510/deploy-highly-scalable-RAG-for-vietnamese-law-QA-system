@@ -4,7 +4,7 @@ pipeline {
     environment {
         PROJECT_ID = 'legal-rag'
         REPOSITORY_NAME = 'test'
-        GCR_URL = "gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}"
+        GCR_URL = "gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/test_image"
     }
     
     stages {
