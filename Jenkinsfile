@@ -13,23 +13,23 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/lily4499/lil-node-app.git'
             }
         }
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${GCR_URL}:${BUILD_NUMBER}")
-                }
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             docker.build("${GCR_URL}:${BUILD_NUMBER}")
+        //         }
+        //     }
+        // }
         
-        stage('Push to GCR') {
-            steps {
-                script {
-                    docker.withRegistry('https://gcr.io', 'de5a49d1-b476-4be9-804c-0e576862704e') {
-                        docker.image("${GCR_URL}:${BUILD_NUMBER}").push()
-                    }
-                }
-            }
-        }
+        // stage('Push to GCR') {
+        //     steps {
+        //         script {
+        //             docker.withRegistry('https://gcr.io', 'de5a49d1-b476-4be9-804c-0e576862704e') {
+        //                 docker.image("${GCR_URL}:${BUILD_NUMBER}").push()
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Deploy to Google Kubernetes Engine') {
             agent {
