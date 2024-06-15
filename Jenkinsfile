@@ -44,7 +44,7 @@ pipeline {
                 script {
                     steps
                     container('helm') {
-                        sh("helm upgrade --install hpp ./helm --namespace model-serving")
+                        sh("helm upgrade --install hpp2 ./helm --namespace model-serving")
                     }
                 }
             }
