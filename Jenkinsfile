@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     environment {
-        PROJECT_ID = 'lili-devops'
-        REPOSITORY_NAME = 'gcr-node-app'
+        PROJECT_ID = 'legal-rag'
+        REPOSITORY_NAME = 'test'
         GCR_URL = "gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}"
     }
     
@@ -24,7 +24,7 @@ pipeline {
         stage('Push to GCR') {
             steps {
                 script {
-                    docker.withRegistry('https://gcr.io', 'gcr-credentials-demo') {
+                    docker.withRegistry('https://gcr.io', 'gcp_credential') {
                         docker.image("${GCR_URL}:${BUILD_NUMBER}").push()
                     }
                 }
