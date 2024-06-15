@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dind
+spec:
+  containers:
+    - name: gcloud-builder
+      image: google/cloud-sdk
+      command: ["sleep"]
+      args: ["infinity"]
+      volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
