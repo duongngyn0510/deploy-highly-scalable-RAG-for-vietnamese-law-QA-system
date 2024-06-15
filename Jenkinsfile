@@ -30,5 +30,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Google Kubernetes Engine') {
+            agent {
+                kubernetes {
+                    containerTemplate {
+                        name 'helm' // Name of the container to be used for helm upgrade
+                        image 'asia.gcr.io/legal-rag/jenkins_helm:v0.1' // The image containing helm
+                    }
+                }
+            }
+            steps {
+                script {
+                    steps
+                    container('helm') {
+                        sh("helm upgrade --install hpp ./helm --namespace model-serving")
+                    }
+                }
+            }
+        }
     }
 }
