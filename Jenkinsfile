@@ -13,13 +13,13 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/lily4499/lil-node-app.git'
             }
         }
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${GCR_URL}:${BUILD_NUMBER}")
-                }
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             docker.build("${GCR_URL}:${BUILD_NUMBER}")
+        //         }
+        //     }
+        // }
         
         // stage('Push to GCR') {
         //     steps {
