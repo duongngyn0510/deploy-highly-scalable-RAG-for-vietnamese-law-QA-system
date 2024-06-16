@@ -25,16 +25,13 @@ pipeline {
         stage('Scan Docker Image for Vulnerabilities') {
             steps {
                 script {
-                    docker.image(env.SCAN_IMAGE).inside {
-                        sh """
-                            anchore-cli --url http://localhost:8228/v1 image add ${GCR_URL}:${BUILD_NUMBER}
-                            anchore-cli --url http://localhost:8228/v1 image wait ${GCR_URL}:${BUILD_NUMBER}
-                            anchore-cli --url http://localhost:8228/v1 image vuln ${GCR_URL}:${BUILD_NUMBER} all
-                        """
-                    }
+                    sh """
+                        trivy image --ignore-unfixed ${GCR_URL}:${BUILD_NUMBER} > trivy-report.txt
+                    """
                 }
             }
         }
+
         stage('Manual Approval') {
             steps {
                 script {
