@@ -23,10 +23,9 @@ pipeline {
             steps {
                 script {
                     echo 'Scanning RAG controller image ...'
-                    sh """
-                        trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt \ 
-                        ${GCR_URL}:v0.0.${BUILD_NUMBER}
-                    """
+                    sh("trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt \ 
+                        ${GCR_URL}:v0.0.${BUILD_NUMBER}"
+                    )
                 }
             }
         }
@@ -62,9 +61,10 @@ pipeline {
                 script {
                     steps
                     container('helm') {
-                        sh("helm upgrade --install rag --set namespace=${NAMESPACE} 
+                        sh("helm upgrade --install rag --set namespace=${NAMESPACE} \
                             --set deployment.image.name=${GCR_URL} \
-                            --set deployment.image.version=v0.0.${BUILD_NUMBER} helm-charts/rag --namespace ${NAMESPACE}")
+                            --set deployment.image.version=v0.0.${BUILD_NUMBER} helm-charts/rag --namespace ${NAMESPACE}"
+                        )
                     }
                 }
             }
