@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        trivy image --ignore-unfixed ${GCR_URL}:${BUILD_NUMBER} > trivy-report.txt
+                        image --ignore-unfixed --scanners vuln --output ${BUILD_NUMBER}-vul.txt ${GCR_URL}:${BUILD_NUMBER}
                     """
                 }
             }
