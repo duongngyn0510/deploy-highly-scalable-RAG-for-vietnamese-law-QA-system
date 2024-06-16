@@ -14,9 +14,7 @@ FROM base as dependencies
 WORKDIR /home/worker/app
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --extras "ui weaviate"
-
-RUN pip install tritonclient[all]==2.46.0
+RUN poetry install --extras "ui weaviate vllm"
 
 FROM base as app
 

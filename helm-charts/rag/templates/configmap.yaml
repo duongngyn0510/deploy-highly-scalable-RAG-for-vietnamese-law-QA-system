@@ -7,10 +7,15 @@ metadata:
     app: {{ .Values.deployment.labels.appName }}
 data:
     PGPT_PROFILES: docker
-    RAG_WORKERS: "1"
+    RAG_WORKERS: "2"
+    # PORT: "8089"
     LLM_MODE: vllm
+    TRANSLATION_ENABLED: "false"
     EMBEDDING_MODE: text_embeddings_inference
     VECTOR_STORE: weaviate
-    VLLM_ENDPOINT: http://103.145.79.20:6017/v1/completions
+    VLLM_ENDPOINT: http://103.145.79.20:6017/generate
+    LLM_MODEL: Viet-Mistral/Vistral-7B-Chat
     TEXT_EMBEDDINGS_INFERENCE_ENDPOINT: http://34.143.146.147
     WEAVIATE_ENDPOINT: http://35.198.250.43
+    TRITON_SERVER_ENDPOINT: localhost:8001
+    TRITON_MODEL_NAME: envit5
