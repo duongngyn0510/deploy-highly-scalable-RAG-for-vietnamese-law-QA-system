@@ -24,7 +24,7 @@ pipeline {
                 script {
                     echo 'Scanning RAG controller image ...'
                     sh(
-                        "trivy image --scanners vuln --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt ${GCR_URL}:v0.0.${BUILD_NUMBER}"
+                        "trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt ${GCR_URL}:v0.0.${BUILD_NUMBER}"
                     )
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Google Kubernetes Engine') {
+        stage('Deploy to GKE') {
             agent {
                 kubernetes {
                     containerTemplate {
