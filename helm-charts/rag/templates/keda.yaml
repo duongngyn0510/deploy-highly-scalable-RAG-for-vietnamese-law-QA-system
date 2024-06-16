@@ -1,0 +1,20 @@
+# apiVersion: keda.sh/v1alpha1
+# kind: ScaledObject
+# metadata:
+#   name: rag-scaledobject
+#   namespace: {{ .Values.namespace }}
+#   labels:
+#     deploymentName: {{ .Values.deployment.name }}
+# spec:
+#   scaleTargetRef:
+#     kind: Deployment
+#     name: {{ .Values.deployment.name }} # name of the deployment, must be in the same namespace as ScaledObject
+#   minReplicaCount: 1
+#   pollingInterval: 15
+#   triggers:
+#   - type: prometheus
+#     metadata:
+#       serverAddress: http://prometheus-server.monitoring.svc.cluster.local:80
+#       metricName: nginx_ingress_controller_requests
+#       threshold: '100'
+#       query: sum(rate(nginx_ingress_controller_requests[2m]))

@@ -3,21 +3,18 @@ pipeline {
     
     environment {
         PROJECT_ID = 'legal-rag'
-        REPOSITORY_NAME = 'test'
-        GCR_URL = "asia.gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/test_image"
-        SCAN_IMAGE = "anchore/scan-action:latest"
+        REPOSITORY_NAME = 'rag'
+        IMAGE_NAME = 'rag-controller'
+        GCR_URL = "asia.gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE_NAME}"
+        NAMESPACE = 'model-serving'
     }
     
     stages {
-        stage('SCM Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/lily4499/lil-node-app.git'
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${GCR_URL}:${BUILD_NUMBER}")
+                    echo 'Building RAG controller image for deployment ...'
+                    docker.build("${GCR_URL}:v0.0.${BUILD_NUMBER}")
                 }
             }
         }
@@ -25,8 +22,10 @@ pipeline {
         stage('Scan Docker Image for Vulnerabilities') {
             steps {
                 script {
+                    echo 'Scanning RAG controller image ...'
                     sh """
-                        trivy image --ignore-unfixed --output ${BUILD_NUMBER}-vul.txt ${GCR_URL}:${BUILD_NUMBER}
+                        trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt \ 
+                        ${GCR_URL}:v0.0.${BUILD_NUMBER}
                     """
                 }
             }
@@ -39,32 +38,36 @@ pipeline {
                 }
             }
         }
-        // stage('Push to GCR') {
-        //     steps {
-        //         script {
-        //             docker.withRegistry('https://asia.gcr.io', 'google_registry') {
-        //                 docker.image("${GCR_URL}:${BUILD_NUMBER}").push()
-        //             }
-        //         }
-        //     }
-        // }
 
-        // stage('Deploy to Google Kubernetes Engine') {
-        //     agent {
-        //         kubernetes {
-        //             containerTemplate {
-        //                 name 'helm' // Name of the container to be used for helm upgrade
-        //                 image 'asia.gcr.io/legal-rag/jenkins_helm:v0.1' // The image containing helm
-        //             }
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             steps
-        //             container('helm') {
-        //                 sh("helm upgrade --install hpp2 ./helm --namespace model-serving")
-        //             }
-        //         }
-        //     }
+        stage('Push to GCR') {
+            steps {
+                script {
+                    docker.withRegistry('https://asia.gcr.io', 'google_registry') {
+                        docker.image("${GCR_URL}:v0.0.${BUILD_NUMBER}").push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Google Kubernetes Engine') {
+            agent {
+                kubernetes {
+                    containerTemplate {
+                        name 'helm' 
+                        image 'asia.gcr.io/legal-rag/jenkins_helm:v0.1' 
+                    }
+                }
+            }
+            steps {
+                script {
+                    steps
+                    container('helm') {
+                        sh("helm upgrade --install rag --set namespace=${NAMESPACE} 
+                            --set deployment.image.name=${GCR_URL} \
+                            --set deployment.image.version=v0.0.${BUILD_NUMBER} helm-charts/rag --namespace ${NAMESPACE}")
+                    }
+                }
+            }
+        }
     }
 }

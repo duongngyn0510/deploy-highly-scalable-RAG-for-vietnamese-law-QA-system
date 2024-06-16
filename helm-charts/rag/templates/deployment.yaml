@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.deployment.labels.appName }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.appName }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        app: {{ .Values.deployment.labels.appName }}
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: {{ .Values.deployment.container.name}}
+          image: "{{ .Values.deployment.image.name }}:{{ .Values.deployment.image.version }}"
+          imagePullPolicy: {{ .Values.deployment.image.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deployment.container.portNumber }}
+              name: {{ .Values.deployment.container.name }}
+          {{- with .Values.deployment.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+          - configMapRef:
+              name: {{ .Values.configmap.name }}

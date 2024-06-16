@@ -1,0 +1,11 @@
+apiVersion: v2
+name: rag-pipeline
+description: Legal Rag pipeline chart
+type: application
+
+version: 0.1.0
+appVersion: "1.0.0"
+
+maintainers:
+- email: duongntd2@fpt.com
+  name: duongntd2

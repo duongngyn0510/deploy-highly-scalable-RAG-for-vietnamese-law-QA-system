@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Values.configmap.name }}
+  labels:
+    app: {{ .Values.deployment.labels.appName }}
+data:
+  HUGGING_FACE_HUB_TOKEN: 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
+

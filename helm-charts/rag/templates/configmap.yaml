@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Values.configmap.name }}
+  labels:
+    app: {{ .Values.deployment.labels.appName }}
+data:
+    PGPT_PROFILES: docker
+    RAG_WORKERS: "1"
+    LLM_MODE: vllm
+    EMBEDDING_MODE: text_embeddings_inference
+    VECTOR_STORE: weaviate
+    VLLM_ENDPOINT: http://103.145.79.20:6017/v1/completions
+    TEXT_EMBEDDINGS_INFERENCE_ENDPOINT: http://34.143.146.147
+    WEAVIATE_ENDPOINT: http://35.198.250.43
