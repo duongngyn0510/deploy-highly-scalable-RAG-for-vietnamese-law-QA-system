@@ -23,8 +23,8 @@ pipeline {
             steps {
                 script {
                     echo 'Scanning RAG controller image ...'
-                    sh("trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt \ 
-                        ${GCR_URL}:v0.0.${BUILD_NUMBER}"
+                    sh(
+                        "trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt ${GCR_URL}:v0.0.${BUILD_NUMBER}"
                     )
                 }
             }
