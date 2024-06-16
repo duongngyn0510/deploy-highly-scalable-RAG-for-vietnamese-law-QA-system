@@ -24,7 +24,7 @@ pipeline {
                 script {
                     echo 'Scanning RAG controller image ...'
                     sh(
-                        "trivy image --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt ${GCR_URL}:v0.0.${BUILD_NUMBER}"
+                        "trivy image --scanners vuln --ignore-unfixed --output v0.0.${BUILD_NUMBER}-vul.txt ${GCR_URL}:v0.0.${BUILD_NUMBER}"
                     )
                 }
             }
@@ -44,6 +44,14 @@ pipeline {
                     docker.withRegistry('https://asia.gcr.io', 'google_registry') {
                         docker.image("${GCR_URL}:v0.0.${BUILD_NUMBER}").push()
                     }
+                }
+            }
+        }
+
+        stage('Review') {
+            steps {
+                script {
+                    input message: 'Review the CI process', ok: 'Proceed'
                 }
             }
         }
