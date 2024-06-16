@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        image --ignore-unfixed --output ${BUILD_NUMBER}-vul.txt ${GCR_URL}:${BUILD_NUMBER}
+                        trivy image --ignore-unfixed --output ${BUILD_NUMBER}-vul.txt ${GCR_URL}:${BUILD_NUMBER}
                     """
                 }
             }
