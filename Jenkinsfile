@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        PROJECT_ID = 'legal-rag'
+        PROJECT_ID = 'orbital-age-427114-u7'
         REPOSITORY_NAME = 'rag'
         IMAGE_NAME = 'rag-controller'
         GCR_URL = "asia.gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE_NAME}"
