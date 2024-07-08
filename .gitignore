@@ -35,7 +35,6 @@ __pycache__/
 # local
 weaviate_data
 weaviate_data.zip
-monitoring
 rerank
 matplotlib_perf
 perf

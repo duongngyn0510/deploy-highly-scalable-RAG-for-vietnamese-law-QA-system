@@ -1,0 +1,34 @@
+# config file version
+apiVersion: 1
+
+# list of datasources that should be deleted from the database
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
+# list of datasources to insert/update depending
+# what's available in the database
+datasources:
+  - name: monitoring-server
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+
+  - name: emb-k8s-cluster
+    type: prometheus
+    access: proxy
+    url: http://107.167.177.191
+    isDefault: false
+  
+  - name: weaviate-k8s-cluster
+    type: prometheus
+    access: proxy
+    url: http://34.80.127.78
+    isDefault: false
+
+  - name: rag-controller-k8s-cluster
+    type: prometheus
+    access: proxy
+    url: http://35.185.131.27
+    isDefault: false
