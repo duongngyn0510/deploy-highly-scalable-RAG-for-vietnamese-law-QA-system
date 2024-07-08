@@ -62,7 +62,7 @@ pipeline {
                 kubernetes {
                     containerTemplate {
                         name 'helm' 
-                        image 'asia.gcr.io/legal-rag/jenkins_helm:v0.1' 
+                        image 'asia.gcr.io/orbital-age-427114-u7/rag/jenkins_helm:v0.1' 
                     }
                 }
             }
