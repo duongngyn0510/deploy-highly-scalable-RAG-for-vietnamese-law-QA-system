@@ -12,7 +12,7 @@ from llama_index.core.settings import Settings as LlamaIndexSettings
 from src.server.chat.chat_router import chat_router
 from src.server.completions.completions_router import completions_router
 from src.server.health.health_router import health_router
-from src.server.retriever.retriver_router import retriever_router
+# from src.server.retriever.retriver_router import retriever_router
 from src.settings.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def create_app(root_injector: Injector) -> FastAPI:
     app.include_router(completions_router)
     app.include_router(chat_router)
     app.include_router(health_router)
-    app.include_router(retriever_router)
+    # app.include_router(retriever_router)
     
     # Add LlamaIndex simple observability
     global_handler = create_global_handler("simple")
