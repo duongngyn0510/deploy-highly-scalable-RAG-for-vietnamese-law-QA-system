@@ -26,10 +26,10 @@ deployment:
 
   resources:
     requests:
-      cpu: 3
+      cpu: 2
       memory: 3Gi
     limits:
-      cpu: 3.5
+      cpu: 2.5
       memory: 4Gi
 
 service:
