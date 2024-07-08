@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Values.configmap.name }}
+  labels:
+    app: {{ .Values.deployment.labels.appName }}
+data:
+  PROFILES: prod
+  RAG_WORKERS: "1"
+  LLM_MODE: vllm
+  EMBEDDING_MODE: text_embeddings_inference
+  VECTOR_STORE: weaviate
+  VLLM_ENDPOINT: http://103.145.79.20:6017/generate
+  LLM_MODEL: Viet-Mistral/Vistral-7B-Chat
+  TEXT_EMBEDDINGS_INFERENCE_ENDPOINT: http://35.194.199.238
+  WEAVIATE_ENDPOINT: http://104.199.221.145
+  SIMILARITY_TOP_K: "5"
+  VLLM_MAX_TOKENS: "512"

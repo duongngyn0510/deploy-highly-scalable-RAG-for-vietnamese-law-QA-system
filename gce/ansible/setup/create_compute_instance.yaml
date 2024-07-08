@@ -1,0 +1,51 @@
+- name: Create a Compute Engine instance
+  hosts: localhost
+  tasks:
+    - name: Debug project variable
+      debug:
+        msg: "Project: {{ lookup('env', 'PROJECT') }}"
+
+    - name: Debug service_account_file variable
+      debug:
+        msg: "Service Account File: {{ lookup('env', 'SERVICE_ACCOUNT_FILE') }}"
+        
+    - name: Start an instance
+      gcp_compute_instance:
+        name: grafana-and-jenkins-server
+        machine_type: e2-standard-4
+        zone: asia-east1-a
+        project: "{{ lookup('env', 'PROJECT') }}"
+        auth_kind: serviceaccount
+        service_account_file: "{{ lookup('env', 'SERVICE_ACCOUNT_FILE') }}"
+        disks:
+        - auto_delete: 'true'
+          boot: 'true'
+          initialize_params:
+            source_image: projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20230727
+            disk_size_gb: 50
+        network_interfaces:
+          - network:
+              selfLink: global/networks/default
+            access_configs:
+              - name: External NAT
+                type: ONE_TO_ONE_NAT
+        state: present
+
+    - name: Create inbound firewall rule for port 8081 and 50000
+      gcp_compute_firewall:
+        name: allow-port-8081-50000
+        network:
+          selfLink: global/networks/default
+        allowed:
+          - ip_protocol: TCP
+            ports:
+              - 8080
+              - 50000
+              - 8081
+        source_ranges:
+          - 0.0.0.0/0 
+        direction: INGRESS 
+        description: Allow incoming traffic on port 50000 and 8081 (Jenkins UI)
+        project: "{{ lookup('env', 'PROJECT') }}"
+        auth_kind: serviceaccount
+        service_account_file: "{{ lookup('env', 'SERVICE_ACCOUNT_FILE') }}"

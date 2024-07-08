@@ -32,7 +32,11 @@ __pycache__/
 # macOS
 .DS_Store
 
+# local
 weaviate_data
 weaviate_data.zip
 monitoring
 rerank
+matplotlib_perf
+perf
+Makefile

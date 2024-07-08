@@ -1,0 +1,2 @@
+[servers]
+35.201.179.202 ansible_user=duongntd2 ansible_ssh_private_key_file=/home/duongntd/.ssh/id_rsa

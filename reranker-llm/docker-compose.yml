@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  llm:
+    image: vllm/vllm-openai:v0.2.2
+    entrypoint: ["python3", "vllm.entrypoints.api_server"]
+    runtime: nvidia
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN}
+    ports:
+      - "6017:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    command: ["--model", "Viet-Mistral/Vistral-7B-Chat", "--gpu-memory-utilization=0.8"]
+    ipc: "host"
+
+  reranker:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.2
+    runtime: nvidia
+    ports:
+      - "6018:80"
+    volumes:
+      - /home/duongntd2/:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    command: ["--model-id", "BAAI/bge-reranker-v2-m3"]

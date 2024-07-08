@@ -1,0 +1,62 @@
+namespace: rag
+
+configmap:
+  name: rag-config
+
+  labels:
+    appName: rag-config
+
+deployment:
+  name: rag-deploy
+
+  image:
+    name: duong05102002/legal-rag
+    version: v1.1
+    imagePullPolicy: IfNotPresent
+
+  container: 
+    name: rag
+    portName: rag
+    portNumber: 8080
+
+  labels:
+    appName: rag
+
+  replicaCount: 1
+
+  resources:
+    requests:
+      cpu: 3
+      memory: 6Gi
+    limits:
+      cpu: 3.5
+      memory: 7Gi
+
+service:
+  name: rag-svc
+
+  type: LoadBalancer
+
+  httpPort:
+    enable: true
+
+    port: 80
+
+    nodePort: 32001
+
+    targetPort: 8080
+
+ingress:
+  name: rag-ing
+  host: 34.81.253.13.nip.io
+
+hpa:
+  name: rag-hpa
+  minReplicas: 1
+  maxReplicas: 4
+  cpu:
+    enable: true
+    targetCPUUtilizationPercentage: 80
+  memory:
+    enable: true
+    targetMemoryUtilizationPercentage: 70

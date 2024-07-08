@@ -1,0 +1,76 @@
+server:
+  env_name: ${APP_ENV:prod}
+  port: ${PORT:8080}
+
+llm:
+  mode: ${LLM_MODE:nvidia_nim}
+
+embedding:
+  mode: ${EMBEDDING_MODE:text_embeddings_inference}
+
+vectorstore:
+  database: ${VECTOR_STORE:weaviate}
+
+vllm:
+  vllm_endpoint: ${VLLM_ENDPOINT:http://localhost:6017/v1/completions}
+  llm_model: ${LLM_MODEL:Viet-Mistral/Vistral-7B-Chat}
+  prompt_style: default
+  temperature: 1
+  max_tokens: ${VLLM_MAX_TOKENS:256}
+
+text_embeddings_inference:
+  text_embeddings_inference_endpoint: ${TEXT_EMBEDDINGS_INFERENCE_ENDPOINT:http://localhost:8081}
+  timeout: 60
+
+weaviate:
+  weaviate_endpoint: ${WEAVIATE_ENDPOINT:http://localhost:9091}
+  index_name: Law07032024
+
+rag:
+  # This value controls how many "top" documents the RAG returns to use in the context.
+  similarity_top_k: ${SIMILARITY_TOP_K:20}
+  
+  hybrid_retriever:
+    enabled: true
+
+  rerank:
+    enabled: false
+    top_n: 3
+    mode: model_api
+
+translation:
+  enabled: ${TRANSLATION_ENABLED:false}
+  mode: triton_envit5
+    
+translation_tokenizer:
+  pretrained_model_name_or_path: VietAI/envit5-translation
+  padding: true
+
+envit5_translation_triton_server:
+  triton_server_endpoint: ${TRITON_SERVER_ENDPOINT:-}
+  triton_model_name: ${TRITON_MODEL_NAME:-}
+  src_lang: vi
+  tag_lang: en
+
+model_api_rerank:
+  model_api_endpoint: http://localhost:8084/rerank
+  
+ui:
+  enabled: true
+  path: /
+  default_chat_system_prompt: >
+    Bạn là một trợ lí Tiếng Việt nhiệt tình và trung thực. 
+    Hãy luôn trả lời một cách hữu ích nhất có thể, đồng thời giữ an toàn.
+    Câu trả lời của bạn không nên chứa bất kỳ nội dung gây hại, phân biệt chủng tộc, phân biệt giới tính, độc hại, nguy hiểm hoặc bất hợp pháp nào. 
+    Hãy đảm bảo rằng các câu trả lời của bạn không có thiên kiến xã hội và mang tính tích cực.Nếu một câu hỏi không có ý nghĩa hoặc không hợp lý về mặt thông tin, hãy giải thích tại sao thay vì trả lời một điều gì đó không chính xác. 
+    Nếu bạn không biết câu trả lời cho một câu hỏi, hãy trẳ lời là bạn không biết và vui lòng không chia sẻ thông tin sai lệch
+  delete_file_button_enabled: true
+  delete_all_files_button_enabled: true
+
+nvidia_nim:
+  model: meta/llama3-70b-instruct
+  api_base: https://integrate.api.nvidia.com/v1
+  api_key: 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
+  temperature: 0.5
+  top_p: 1
+  max_tokens: 1024

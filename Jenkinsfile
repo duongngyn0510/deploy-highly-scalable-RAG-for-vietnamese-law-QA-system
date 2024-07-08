@@ -6,15 +6,16 @@ pipeline {
         REPOSITORY_NAME = 'rag'
         IMAGE_NAME = 'rag-controller'
         GCR_URL = "asia.gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE_NAME}"
-        NAMESPACE = 'model-serving'
+        NAMESPACE = 'rag'
     }
     
     stages {
         stage('Build Docker Image') {
             steps {
                 script {
+                    def ragDirectory = 'rag-controller'
                     echo 'Building RAG controller image for deployment ...'
-                    docker.build("${GCR_URL}:v0.0.${BUILD_NUMBER}")
+                    docker.build("${GCR_URL}:v0.0.${BUILD_NUMBER}", "-f ${ragDirectory}/Dockerfile ${ragDirectory}")
                 }
             }
         }
@@ -71,7 +72,7 @@ pipeline {
                     container('helm') {
                         sh("helm upgrade --install rag --set namespace=${NAMESPACE} \
                             --set deployment.image.name=${GCR_URL} \
-                            --set deployment.image.version=v0.0.${BUILD_NUMBER} helm-charts/rag --namespace ${NAMESPACE}"
+                            --set deployment.image.version=v0.0.${BUILD_NUMBER} rag-controller/helm-charts/rag --namespace ${NAMESPACE}"
                         )
                     }
                 }
