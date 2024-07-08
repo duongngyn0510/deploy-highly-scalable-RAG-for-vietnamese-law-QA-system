@@ -27,10 +27,10 @@ deployment:
   resources:
     requests:
       cpu: 3
-      memory: 6Gi
+      memory: 3Gi
     limits:
       cpu: 3.5
-      memory: 7Gi
+      memory: 4Gi
 
 service:
   name: rag-svc
