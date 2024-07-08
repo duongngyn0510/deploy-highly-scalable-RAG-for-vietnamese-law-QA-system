@@ -7,7 +7,6 @@ pipeline {
         IMAGE_NAME = 'rag-controller'
         GCR_URL = "asia.gcr.io/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE_NAME}"
         NAMESPACE = 'rag'
-        GCR_CREDENTIAL = 'gcr'
     }
     
     stages {
@@ -43,7 +42,7 @@ pipeline {
         stage('Push to GCR') {
             steps {
                 script {
-                    docker.withRegistry('https://asia.gcr.io', ${GCR_CREDENTIAL}) {
+                    docker.withRegistry('https://asia.gcr.io', 'gcr') {
                         docker.image("${GCR_URL}:v0.0.${BUILD_NUMBER}").push()
                     }
                 }
