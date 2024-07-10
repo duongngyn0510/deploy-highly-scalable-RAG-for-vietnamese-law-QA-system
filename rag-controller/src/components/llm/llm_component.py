@@ -180,8 +180,6 @@ class LLMComponent:
                 vllm_settings = settings.vllm
                 self.llm = VllmServer(
                     api_url=vllm_settings.vllm_endpoint,
-                    # model=vllm_settings.llm_model,
-                    # temperature=vllm_settings.temperature,
                     max_new_tokens=vllm_settings.max_tokens,
                     messages_to_prompt=prompt_style.messages_to_prompt,
                     completion_to_prompt=prompt_style.completion_to_prompt,

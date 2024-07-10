@@ -3,57 +3,11 @@
   hosts: servers # Which host to apply, you can replace by `servers`, or by `servers_1, servers_2` for multiple groups
   become: yes # To run commands as a superuser (e.g., sudo)
   vars:
-    # jenkins
-    jenkins_container_image: fullstackdatascience/jenkins:lts
-    jenkins_container_name: jenkins
-
     # grafana
     grafana_container_image: grafana/grafana:9.0.5
     grafana_container_name: grafana
 
   tasks:
-    - name: Install aptitude
-      apt:
-        name: aptitude
-        state: latest
-        update_cache: true
-
-    - name: Install prerequisites
-      apt:
-        pkg:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - python3-pip
-          - virtualenv
-          - python3-setuptools
-        state: latest
-        update_cache: true
-
-    - name: Install python libs
-      ansible.builtin.pip:
-        name:
-          - docker
-          - locust
-          - loguru
-
-    - name: Add Docker GPG apt Key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker Repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
-
-    - name: Update apt and install docker-ce
-      apt:
-        name: docker-ce
-        state: latest
-        update_cache: true
-
     - name: Pull the jenkins docker image
       community.docker.docker_image:
         name: "{{ jenkins_container_image }}"
@@ -64,7 +18,7 @@
         name: "{{ grafana_container_image }}"
         source: pull
 
-    - name: Run jenkins container
+    - name: Run grafana container
       community.docker.docker_container:
         name: "{{ default_container_name }}"
         image: "{{ default_container_image }}"

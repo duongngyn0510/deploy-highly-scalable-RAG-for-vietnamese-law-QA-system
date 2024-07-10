@@ -26,7 +26,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 1860,
   "graphTooltip": 1,
-  "id": 2,
+  "id": 3,
   "links": [
     {
       "icon": "external link",
@@ -3264,8 +3264,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3451,8 +3450,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3552,8 +3550,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3991,8 +3988,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -23198,8 +23194,8 @@
     ]
   },
   "timezone": "browser",
-  "title": "Node Exporter Full",
+  "title": "Monitoring Server",
   "uid": "rYdddlPWk",
-  "version": 14,
+  "version": 2,
   "weekStart": ""
 }
