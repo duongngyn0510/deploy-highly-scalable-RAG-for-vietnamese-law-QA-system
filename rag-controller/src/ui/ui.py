@@ -104,7 +104,7 @@ class PrivateGptUi:
             )
             yield from yield_deltas_stream(llm_stream)
         else:
-            llm_stream = self._chat_service.chat(
+            llm_stream = self._chat_service.stream_chat(
                 messages=all_messages,
                 use_context=True,
             )
