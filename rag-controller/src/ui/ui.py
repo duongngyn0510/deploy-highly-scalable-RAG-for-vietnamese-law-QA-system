@@ -97,18 +97,12 @@ class PrivateGptUi:
                     role=MessageRole.SYSTEM,
                 ),
             )
-        if settings().llm.mode == 'vllm':
-            llm_stream = self._chat_service.stream_chat(
-                messages=all_messages,
-                use_context=True,
-            )
-            yield from yield_deltas_stream(llm_stream)
-        else:
-            llm_stream = self._chat_service.stream_chat(
-                messages=all_messages,
-                use_context=True,
-            )
-            yield from yield_deltas(llm_stream)
+
+        llm_stream = self._chat_service.stream_chat(
+            messages=all_messages,
+            use_context=True,
+        )
+        yield from yield_deltas_stream(llm_stream)
 
     # On initialization and on mode change, this function set the system prompt
     # to the default prompt based on the mode (and user settings).
