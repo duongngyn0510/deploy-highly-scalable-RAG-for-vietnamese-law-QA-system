@@ -56,10 +56,10 @@ model_api_rerank:
   model_api_endpoint: http://localhost:8084/rerank
 
 auto_redirect:
-  enabled: ${AUTO_REDIRECT_ENABLED:false}
+  enabled: ${AUTO_REDIRECT_ENABLED:true}
   llm_api_provider: ${AUTO_REDIRECT_LLM_API_PROVIDER:nvidia_nim}
   threshold: ${AUTO_REDIRECT_THRESHOLD:150}
-  prometheus_url: ${PROMETHEUS_URL:http://prometheus-server.monitoring.svc.cluster.local:9090}
+  prometheus_url: ${PROMETHEUS_URL:http://prometheus-server.monitoring.svc.cluster.local}
   prometheus_query: sum(increase(nginx_ingress_controller_requests{}[2m]))
 
 nvidia_nim:

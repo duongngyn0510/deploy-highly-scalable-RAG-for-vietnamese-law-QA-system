@@ -2,10 +2,10 @@ from prometheus_api_client import PrometheusConnect
 
 def get_prometheus_metrics(prometheus_url, query):
     # Connect to Prometheus
-    prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
+    prom = PrometheusConnect(url="http://prometheus-server.monitoring.svc.cluster.local:80", disable_ssl=True)
     
     # Execute the query
-    result = prom.custom_query(query=query)
+    result = prom.custom_query(query='sum(increase(nginx_ingress_controller_requests{}[2h]))')
     
     # Return the result
     return result

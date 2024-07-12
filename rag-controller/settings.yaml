@@ -159,7 +159,7 @@ auto_redirect:
   enabled: false
   llm_api_provider: nvidia_nim
   threshold: 150
-  prometheus_url: http://prometheus-server.monitoring.svc.cluster.local:9090
+  prometheus_url: http://prometheus-server.monitoring.svc.cluster.local
   prometheus_query: sum(increase(nginx_ingress_controller_requests{}[2m]))
 
 nvidia_nim:

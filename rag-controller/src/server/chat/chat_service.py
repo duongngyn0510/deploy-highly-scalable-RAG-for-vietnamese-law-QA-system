@@ -120,6 +120,7 @@ class ChatService:
                 node_postprocessors.append(rerank_postprocessor)
 
             # Is use automatically redirect requests ?
+            print("enable:", self.settings.auto_redirect.enabled)
             if self.settings.auto_redirect.enabled:
                 try:
                     from src.components.llm.custom.nvidia_nim.base import NvidiaNim
