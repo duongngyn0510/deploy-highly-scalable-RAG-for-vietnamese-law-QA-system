@@ -70,7 +70,7 @@ configmap:
   data:
     PROFILES: prod
     RAG_WORKERS: "1"
-    LLM_MODE: vllm
+    LLM_MODE: nvidia_nim
     EMBEDDING_MODE: text_embeddings_inference
     VECTOR_STORE: weaviate
     VLLM_ENDPOINT: http://103.145.79.20:6017/generate

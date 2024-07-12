@@ -120,7 +120,6 @@ class ChatService:
                 node_postprocessors.append(rerank_postprocessor)
 
             # Is use automatically redirect requests ?
-            print("enable:", self.settings.auto_redirect.enabled)
             if self.settings.auto_redirect.enabled:
                 try:
                     from src.components.llm.custom.nvidia_nim.base import NvidiaNim
@@ -135,8 +134,6 @@ class ChatService:
                 # Setup prometheus
                 prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
                 result = prom.custom_query(query=prometheus_query)
-                print("Connect prom")
-                print("nvidia_nim_settings.api_key", self.settings.nvidia_nim)
                 total_requests = float(result[0]['value'][1])
                 
                 if total_requests > threshold:
