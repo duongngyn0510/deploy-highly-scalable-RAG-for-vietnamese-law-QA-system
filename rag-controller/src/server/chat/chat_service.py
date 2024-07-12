@@ -112,17 +112,50 @@ class ChatService:
                 ),
             ]
 
-            # Using rerank ?
+            # Is use rerank ?
             if self.settings.rag.rerank.enabled:
                 from src.components.rerank.rerank_component import RerankComponent
 
                 rerank_postprocessor = RerankComponent.rerank
                 node_postprocessors.append(rerank_postprocessor)
 
+            # Is use automatically redirect requests ?
+            if self.settings.auto_redirect.enabled:
+                try:
+                    from src.components.llm.custom.nvidia_nim.base import NvidiaNim
+                    from prometheus_api_client import PrometheusConnect 
+                except ImportError as e:
+                    raise e
+                
+                prometheus_url = self.settings.auto_redirect.prometheus_url
+                prometheus_query = self.settings.auto_redirect.prometheus_query
+                threshold = self.settings.auto_redirect.threshold
+
+                # Setup prometheus
+                prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
+                result = prom.custom_query(query=prometheus_query)
+                print("Connect prom")
+                total_requests = float(result[0]['value'][1])
+                
+                if total_requests > threshold:
+                    nvidia_nim_settings = self.settings.nvidia_nim
+                    self.llm = NvidiaNim(
+                        model=nvidia_nim_settings.model,
+                        temperature=nvidia_nim_settings.temperature,
+                        top_p=nvidia_nim_settings.top_p,
+                        max_tokens=nvidia_nim_settings.max_tokens,
+                        api_key=nvidia_nim_settings.api_key,
+                        api_base=nvidia_nim_settings.api_base,
+                    )
+                else:
+                    self.llm = self.llm_component.llm
+            else:
+                self.llm = self.llm_component.llm
+
             return ContextChatEngine.from_defaults(
                 system_prompt=system_prompt,
                 retriever=vector_index_retriever,
-                llm=self.llm_component.llm,
+                llm=self.llm,
                 node_postprocessors=node_postprocessors,
                 verbose=True,
             )

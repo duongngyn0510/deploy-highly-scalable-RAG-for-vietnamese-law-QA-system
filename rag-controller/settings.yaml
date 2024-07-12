@@ -146,7 +146,6 @@ azopenai:
 
 vllm:
   vllm_endpoint: ${VLLM_ENDPOINT:}
-  # api_url: http://localhost:8000/v1/completions
   llm_model: ${LLM_MODEL:Viet-Mistral/Vistral-7B-Chat}
   prompt_style: default
   temperature: 1
@@ -156,10 +155,17 @@ text_embeddings_inference:
   text_embeddings_inference_endpoint: http://127.0.0.1:8080
   timeout: 60
 
+auto_redirect:
+  enabled: false
+  llm_api_provider: nvidia_nim
+  threshold: 150
+  prometheus_url: http://prometheus-server.monitoring.svc.cluster.local:9090
+  prometheus_query: sum(increase(nginx_ingress_controller_requests{}[2m]))
+
 nvidia_nim:
   model: meta/llama3-70b-instruct
   api_base: https://integrate.api.nvidia.com/v1
-  api_key: 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
+  api_key: ${API_KEY:}
   temperature: 0.5
   top_p: 1
   max_tokens: 1024

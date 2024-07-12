@@ -312,30 +312,6 @@ class VLLMSettings(BaseModel):
     max_tokens: int = Field(
         256, description="Maximum number of tokens to generate per output sequence."
     )
-        
-class NvidiaNimSettings(BaseModel):
-    model: str = Field(
-        "meta/llama3-70b-instruct",
-        description='The Nvidia Nim Model to use.'
-    )
-    api_base: str = Field(
-        description="Base URL"
-    )
-    api_key: str = Field(
-        description="API key"
-    )
-    temperature: float = Field(
-        0.5,
-        description="The temperature to use for sampling."
-    )
-    top_p: int = Field(
-        1,
-        description="Top probability"
-    )
-    max_tokens: int = Field(
-        1024,
-        description="Maximum number of tokens to generate per output sequence."
-    )
 
 
 class UISettings(BaseModel):
@@ -539,6 +515,55 @@ class Envit5TranslationTritonServerSettings(BaseModel):
     tag_lang: str = "en"
 
 
+class AutoRedirectSettings(BaseModel):
+    """
+    Automatically redirect requests to third-party LLM API based on total number of requests over the last 2 minutes
+    """
+    enabled: bool = False
+    llm_api_provider: Literal["nvidia_nim"] = Field(
+        "nvidia_nim",
+        description=(
+           "Third-party LLM provider API"
+        ),
+    )
+    threshold: int = Field(
+        150,
+        description="Number of requests over the last 2 minutes"
+    )
+    prometheus_url: str = Field(
+        "http://prometheus-server.monitoring.svc.cluster.local:9090",
+        description="The URL of the Prometheus server (should use the internal cluster IP)"
+    )
+    prometheus_query: str = Field(
+        "sum(increase(nginx_ingress_controller_requests{}[2m]))",
+        description="The PromSQL"
+    )
+
+class NvidiaNimSettings(BaseModel):
+    model: str = Field(
+        "meta/llama3-70b-instruct",
+        description='The Nvidia Nim Model to use.'
+    )
+    api_base: str = Field(
+        description="Base URL"
+    )
+    api_key: str = Field(
+        description="API key"
+    )
+    temperature: float = Field(
+        0.5,
+        description="The temperature to use for sampling."
+    )
+    top_p: int = Field(
+        1,
+        description="Top probability"
+    )
+    max_tokens: int = Field(
+        1024,
+        description="Maximum number of tokens to generate per output sequence."
+    )
+
+
 class Settings(BaseModel):
     server: ServerSettings
     data: DataSettings
@@ -566,8 +591,9 @@ class Settings(BaseModel):
     translation_tokenizer: TranslationTokenizerSettings
     nllb_translation_triton_server: NllbTranslationTritonServerSettings
     envit5_translation_triton_server: Envit5TranslationTritonServerSettings
+    auto_redirect: AutoRedirectSettings
     nvidia_nim: NvidiaNimSettings
-    
+
 """
 This is visible just for DI or testing purposes.
 

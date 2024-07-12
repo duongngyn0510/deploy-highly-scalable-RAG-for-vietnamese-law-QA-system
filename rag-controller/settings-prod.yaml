@@ -34,8 +34,8 @@ rag:
     enabled: true
 
   rerank:
-    enabled: false
-    top_n: 3
+    enabled: ${RERANK_ENABLED:false}
+    top_n: ${RERANK_TOP_N:5}
     mode: model_api
 
 translation:
@@ -54,23 +54,18 @@ envit5_translation_triton_server:
 
 model_api_rerank:
   model_api_endpoint: http://localhost:8084/rerank
-  
-ui:
-  enabled: true
-  path: /
-  default_chat_system_prompt: >
-    Bạn là một trợ lí Tiếng Việt nhiệt tình và trung thực. 
-    Hãy luôn trả lời một cách hữu ích nhất có thể, đồng thời giữ an toàn.
-    Câu trả lời của bạn không nên chứa bất kỳ nội dung gây hại, phân biệt chủng tộc, phân biệt giới tính, độc hại, nguy hiểm hoặc bất hợp pháp nào. 
-    Hãy đảm bảo rằng các câu trả lời của bạn không có thiên kiến xã hội và mang tính tích cực.Nếu một câu hỏi không có ý nghĩa hoặc không hợp lý về mặt thông tin, hãy giải thích tại sao thay vì trả lời một điều gì đó không chính xác. 
-    Nếu bạn không biết câu trả lời cho một câu hỏi, hãy trẳ lời là bạn không biết và vui lòng không chia sẻ thông tin sai lệch
-  delete_file_button_enabled: true
-  delete_all_files_button_enabled: true
+
+auto_redirect:
+  enabled: false
+  llm_api_provider: nvidia_nim
+  threshold: 150
+  prometheus_url: ${PROMETHEUS_URL:http://prometheus-server.monitoring.svc.cluster.local:9090}
+  prometheus_query: sum(increase(nginx_ingress_controller_requests{}[2m]))
 
 nvidia_nim:
   model: meta/llama3-70b-instruct
   api_base: https://integrate.api.nvidia.com/v1
-  api_key: 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
+  api_key: ${API_KEY:}
   temperature: 0.5
   top_p: 1
   max_tokens: 1024
