@@ -16,7 +16,7 @@ from llama_index.core.llms import ChatMessage, ChatResponse, MessageRole
 from src.constants import PROJECT_ROOT_PATH
 from src.di import global_injector
 from src.server.chat.chat_service import ChatService, CompletionGen, Completion
-from src.settings.settings import Settings
+from src.settings.settings import settings
 from src.ui.images import logo_svg
 
 logger = logging.getLogger(__name__)
@@ -30,11 +30,10 @@ UI_TAB_TITLE = "My Private GPT"
 
 @singleton
 class PrivateGptUi:
-
     @inject
     def __init__(
         self,
-        chat_service: ChatService
+        chat_service: ChatService,
     ) -> None:  
         self._chat_service = chat_service
 
@@ -98,14 +97,12 @@ class PrivateGptUi:
                     role=MessageRole.SYSTEM,
                 ),
             )
-
-        if Settings.llm.mode == 'vllm':
+        if settings().llm.mode == 'vllm':
             llm_stream = self._chat_service.stream_chat(
                 messages=all_messages,
                 use_context=True,
             )
             yield from yield_deltas_stream(llm_stream)
-        
         else:
             llm_stream = self._chat_service.chat(
                 messages=all_messages,
@@ -117,7 +114,7 @@ class PrivateGptUi:
     # to the default prompt based on the mode (and user settings).
     @staticmethod
     def _get_default_system_prompt() -> str:
-        return Settings.ui.default_chat_system_prompt
+        return settings().ui.default_chat_system_prompt
 
     def _set_system_prompt(self, system_prompt_input: str) -> None:
         logger.info(f"Setting system prompt to: {system_prompt_input}")
