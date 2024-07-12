@@ -65,7 +65,7 @@ auto_redirect:
 nvidia_nim:
   model: meta/llama3-70b-instruct
   api_base: https://integrate.api.nvidia.com/v1
-  api_key: ${API_KEY:}
+  api_key: ${NVIDIA_NIM_API:}
   temperature: 0.5
   top_p: 1
   max_tokens: 1024

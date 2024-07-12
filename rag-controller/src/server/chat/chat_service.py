@@ -136,6 +136,7 @@ class ChatService:
                 prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
                 result = prom.custom_query(query=prometheus_query)
                 print("Connect prom")
+                print("nvidia_nim_settings.api_key", self.settings.nvidia_nim)
                 total_requests = float(result[0]['value'][1])
                 
                 if total_requests > threshold:

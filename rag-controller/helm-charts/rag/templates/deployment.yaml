@@ -32,3 +32,9 @@ spec:
           envFrom:
           - configMapRef:
               name: {{ .Values.configmap.name }}
+          env:
+          - name: NVIDIA_NIM_API
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.secret.name }}
+                key: NVIDIA_NIM_API
