@@ -10,7 +10,6 @@ from llama_index.core.indices.postprocessor import MetadataReplacementPostProces
 from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.core.postprocessor import SimilarityPostprocessor
 
-
 from llama_index.core.types import TokenGen
 from pydantic import BaseModel
 
