@@ -1,9 +1,5 @@
 version: '3.8'
 
-networks:
-  monitoring:
-    external: false
-
 volumes:
   prometheus_data:
   grafana_data:
@@ -12,6 +8,7 @@ services:
   node-exporter:
     image: prom/node-exporter:v1.3.1
     container_name: node-exporter
+    restart: unless-stopped
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -23,28 +20,6 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
       - 9100:9100
-    networks:
-      - monitoring
-
-  prometheus:
-    image: prom/prometheus:v2.38.0
-    container_name: prometheus
-    restart: unless-stopped
-    volumes:
-      - prometheus_data:/prometheus
-      - ./prometheus_config/config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus_config/config/alert-rules.yml:/etc/prometheus/alert-rules.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=20h'
-      - '--web.enable-lifecycle'
-    ports:
-      - 9095:9090
-    networks:
-      - monitoring
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -56,28 +31,41 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
     ports:
-      - 8090:8080
-    networks:
-      - monitoring
+      - 8081:8080
 
-  grafana:
+  prometheus:
+    image: prom/prometheus:v2.38.0
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus/config:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+    ports:
+      - 9090:9090
+      
+  grafana:  
     image: grafana/grafana:9.0.5
     container_name: grafana
     restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana_config/config/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
-      - ./grafana_config/config/datasources.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
-      - ./grafana_config/dashboards:/opt/grafana/dashboards
+      - ./grafana/config/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ./grafana/config/datasources.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
+      - ./grafana/dashboards:/opt/grafana/dashboards
     environment:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
     ports:
-      - 8081:3000
-    networks:
-      - monitoring
+      - 9092:3000
     healthcheck:
-      test: ["CMD-SHELL", "curl -f localhost:3000/api/health && echo 'ready'"]
+      test: curl -f localhost:9092/api/health || exit 0
       interval: 10s
-      retries: 10      
-  
+      retries: 10         
