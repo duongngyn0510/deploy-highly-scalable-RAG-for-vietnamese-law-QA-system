@@ -1,4 +1,4 @@
-# docker compose for local test
+# docker compose for local deployment
 
 version: '3.4'
 services:
@@ -36,30 +36,25 @@ services:
       - /home/duongntd/data:/data
     ports:
       - 8082:80
-    environment:
-      HUGGING_FACE_HUB_TOKEN: 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
-  
-  # legal-rag:
-  #   # build:
-  #   #   dockerfile: Dockerfile
-  #   image: legal-rag:v1.0
-  #   ports:
-  #     - 8099:8080
-  #   depends_on:
-  #     - embeddings
-  #     - weaviate
-  #   environment:
-  #     PROFILES: docker
-  #     RAG_WORKERS: 2
-  #     # PORT: 8089
-  #     LLM_MODE: vllm
-  #     TRANSLATION_ENABLED: false
-  #     EMBEDDING_MODE: text_embeddings_inference
-  #     VECTOR_STORE: weaviate
-  #     VLLM_ENDPOINT: http://103.145.79.20:6017/generate
-  #     LLM_MODEL: Viet-Mistral/Vistral-7B-Chat
-  #     TEXT_EMBEDDINGS_INFERENCE_ENDPOINT: http://embeddings:80
-  #     WEAVIATE_ENDPOINT: http://weaviate:8080
-  #     TRITON_SERVER_ENDPOINT: localhost:8001
-  #     TRITON_MODEL_NAME: envit5
 
+  llm:
+    image: vllm/vllm-openai:v0.2.2
+    entrypoint: ["python3", "vllm.entrypoints.api_server"]
+    runtime: nvidia
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN}
+    ports:
+      - "6017:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    command: ["--model", "Viet-Mistral/Vistral-7B-Chat", "--gpu-memory-utilization=0.8"]
+    ipc: "host"
+
+  reranker:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.2
+    runtime: nvidia
+    ports:
+      - "6018:80"
+    volumes:
+      - /home/duongntd2/:/data
+    command: ["--model-id", "BAAI/bge-reranker-v2-m3"]
