@@ -16,7 +16,7 @@
     │ └── docker-compose.yml                <- Docker Compose for running Monitoring on GCE
     ├── rag-controller/
     │ ├── helm-charts/                      <- Chart for deployment of RAG Controller
-    │ ├── src/                              <- Core RAG, customized from https://github.com/zylon-ai/private-gpt
+    │ ├── src/                              <- Core RAG, customized from https://github.com/zylon-ai/private-gp
     │ ├── terraform/                        <- Create GKE RAG Controller cluster (Using Cluster Autoscaling)
     │ ├── .env_local                        <- Environment configuration for local setup
     │ ├── docker-compose.yml                <- Docker Compose for local deployment
@@ -102,6 +102,11 @@ docker compose up --build
 ```
 
 ## RAG Controller Component 
+
++ Some important files
+    + `rag-controller/src/server/chat/chat_service.py`
+    + `rag-controller/src/settings/settings.py`
+    + Files in `rag-controller/src/components`
 + Create GKE Cluster
 ```bash
 cd rag-controller/terraform
@@ -139,7 +144,10 @@ terraform apply
         helm upgrade --install rag rag-controller/helm-charts/rag --set deployment.image.name=duong05102002/rag-controller \
         --set deployment.image.version=v0.0.21 --namespace rag
         ```
-    
+
+    +  UI
+
+        ![](images/UI.png)    
 ## Monitoring (Using remote-write pattern)
 
 ![](images/monitoring-architecture.png)
