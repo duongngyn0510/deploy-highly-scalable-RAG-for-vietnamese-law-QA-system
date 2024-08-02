@@ -20,8 +20,6 @@ from src.components.vector_store.vector_store_component import (
     VectorStoreComponent,
 )
 from src.settings.settings import Settings
-from src.server.chat.custom_chat_engine import CustomChatEngineWithTranslation
-from src.components.translation.translation_component import TranslationComponent
 
 
 class Completion(BaseModel):
@@ -98,7 +96,6 @@ class ChatService:
                     index=self.index,
                     similarity_top_k=self.settings.rag.similarity_top_k,
                 )
-
             else:
                 vector_index_retriever = self.vector_store_component.get_retriever(
                     index=self.index,

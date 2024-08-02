@@ -45,7 +45,7 @@
         source_ranges:
           - 0.0.0.0/0 
         direction: INGRESS 
-        description: Allow incoming traffic on port 50000 and 8081 (Jenkins UI)
+        description: Allow incoming traffic on port 50000, 8080 for Jenkins UI and 8081 for Grafana UI
         project: "{{ lookup('env', 'PROJECT') }}"
         auth_kind: serviceaccount
         service_account_file: "{{ lookup('env', 'SERVICE_ACCOUNT_FILE') }}"

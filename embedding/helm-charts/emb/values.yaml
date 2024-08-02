@@ -21,12 +21,12 @@ deployment:
     name: emb
     portName: emb
     portNumber: 80
-    args: ["--model-id", "nhatminh/vietnamese_bi_encoder"]
+    args: ["--model-id", "nhatminh/vietnamese_bi_encoder"]  # Container arguments
 
   labels:
     appName: emb
 
-  replicaCount: 6
+  replicaCount: 
 
   resources:
     requests:
@@ -55,7 +55,7 @@ service:
 hpa:
   name: emb-hpa
 
-  minReplicas: 6
+  # minReplicas: 4
 
   maxReplicas: 8
 
