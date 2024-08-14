@@ -66,6 +66,7 @@ DEFAULT_MODEL = "meta/llama3-70b-instruct"
 
 
 
+// Nguyen Dich Nhat Ming
 
 class NvidiaNim(LLM):
     model: str = Field(
