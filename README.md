@@ -1,6 +1,6 @@
 ## High level architecture
 
-![](images/high-level-architecture.png)
+![](assets/images/high-level-architecture.png)
 
 ## Project structure
 ------------
@@ -93,7 +93,7 @@ terraform apply
 
 ## Reranker and LLM Component (Runs on GPU server)
 
-+ Replace the Reranker and LLM models in the docker-compose.yml file
++ Replace the Reranker, LLM models and volumes path in the docker-compose.yml file
 
 + Deploy
 ```bash
@@ -147,10 +147,10 @@ terraform apply
 
     +  UI
 
-        ![](images/UI.png)    
+        ![](assets/images/UI.png)    
 ## Monitoring (Using remote-write pattern)
 
-![](images/monitoring-architecture.png)
+![](assets/images/monitoring-architecture.png)
 + On Each GKE Cluster
 
     + Update `server.remoteWrite` and add label to `serverFiles.prometheus.yml.scrape_configs` to distince cluster name in the `monitoring/helm-charts/prometheus/values.yaml` file.
@@ -172,12 +172,12 @@ terraform apply
 + Some dasboards:
 
     + Weaviate Dashboard
-        ![](images/monitoring_weaviate.png)
+        ![](assets/images/monitoring_weaviate.png)
 ## CI/CD
 
-![](images/cicd.png)
+![](assets/images/cicd.png)
 
 ## Automatically redirect requests to third-party LLM API
 
 Check `auto_redirect` in `rag-controller/settings-prod.yaml` to configure PromSQL and the threshold for redirecting requests to the NVIDIA NIM API.
-![](images/route_traffic.png)
+![](assets/images/route_traffic.png)
