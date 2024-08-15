@@ -1,43 +1,30 @@
-## High level architecture
+# Table of content
+
+1. [High level architecture](#1-high-level-architecture)
+
+2. [Components](#2-components)
+
+    1. [Embedding Component](#21-embedding-component)
+
+    2. [Weaviate Component](#22-weaviate-component)
+
+    3. [Reranker and LLM Component](#23-reranker-and-llm-component-runs-on-gpu-server)
+
+    4. [RAG Controller Component](#24-rag-controller-component)
+
+3. [Monitoring Architecture](#3-monitoring-architecture-using-remote-write-pattern)
+
+4. [CI/CD Architecture](#4-cicd-architecture)
+
+5. [Automatically redirect requests to third-party LLM API](#5-automatically-redirect-requests-to-third-party-llm-api)
+
+## 1. High level architecture
 
 ![](assets/images/high-level-architecture.png)
 
-## Project structure
-------------
-    ├── embedding/
-    │ ├── helm-charts/                      <- Chart for deployment of Embedding model
-    │ ├── terraform/                        <- Create GKE Embedding cluster (Using Cluster Autoscaling)
-    │ └── gce/
-    │ ├── secret/                           <- Google Cloud credentials
-    │ └── setup/                            <- Setup GCE, deploy Grafana and Jenkins on this GCE
-    ├── monitoring/
-    │ ├── grafana_config/                   <- Grafana configuration, includes datasource and dashboard
-    │ ├── helm-charts/                      <- Chart for deployment of Prometheus Agent on each GKE Cluster
-    │ └── docker-compose.yml                <- Docker Compose for running Monitoring on GCE
-    ├── rag-controller/
-    │ ├── helm-charts/                      <- Chart for deployment of RAG Controller
-    │ ├── src/                              <- Core RAG, customized from https://github.com/zylon-ai/private-gp
-    │ ├── terraform/                        <- Create GKE RAG Controller cluster (Using Cluster Autoscaling)
-    │ ├── .env_local                        <- Environment configuration for local setup
-    │ ├── docker-compose.yml                <- Docker Compose for local deployment
-    │ ├── Dockerfile                        <- Dockerfile for RAG Controller
-    │ ├── main.py                           <- FastAPI app creation for RAG Controller
-    │ ├── poetry.lock
-    │ ├── pyproject.toml
-    │ ├── README.md
-    │ ├── settings-prod.yaml                <- System settings for deployment
-    │ ├── settings.yaml                     <- Settings template
-    │ └── start_local.sh                    <- Script for local deployment
-    ├── reranker-llm/
-    │ ├── .env
-    │ └── docker-compose.yml                <- Docker Compose for LLM and Reranker component deployment on GPU Server
-    └── weaviate/
-    ├── helm-charts/                        <- Helm charts for Weaviate deployment
-    └── terraform/                          <- Create GKE Weaviate cluster (Using Cluster Autoscaling)
-    ├── Jenkinsfile
-    └── README.md
-------------
-### Versions of packages used for configuration and deployment
+## 2. Components 
+
+**Versions of packages used for configuration and deployment**
 
 + [kubectl](https://kubernetes.io/vi/docs/tasks/tools/) v1.28.2
 + [kubens, kubectx](https://github.com/ahmetb/kubectx) v0.9.5
@@ -46,7 +33,7 @@
 + [docker-compose](https://docs.docker.com/compose) v2.21.0
 + [ansible](https://docs.ansible.com/ansible/latest/collections/google/cloud/gcp_compute_instance_module.html) v2.13.13
 
-## Embedding Component
+### 2.1. Embedding Component
 
 + Create GKE Cluster
 ```bash
@@ -71,7 +58,7 @@ terraform apply
     The Embedding GKE cluster uses a Docker image with a backend text-embeddings-inference that pulls the model from Huggingface based on the model-id. To change the model, update the value at `deployment.container.args`.
 
 
-## Weaviate Component
+### 2.2. Weaviate Component
 
 + Create GKE Cluster
 ```bash
@@ -91,7 +78,7 @@ terraform apply
     helm upgrade --install weaviate weaviate/helm-charts/weaviate --namespace weaviate
     ```
 
-## Reranker and LLM Component (Runs on GPU server)
+### 2.3. Reranker and LLM Component (Runs on GPU server)
 
 + Replace the Reranker, LLM models and volumes path in the docker-compose.yml file
 
@@ -101,7 +88,7 @@ cd reranker-llm
 docker compose up --build
 ```
 
-## RAG Controller Component 
+### 2.4. RAG Controller Component 
 
 + Some important files
     + `rag-controller/src/server/chat/chat_service.py`
@@ -148,7 +135,8 @@ terraform apply
     +  UI
 
         ![](assets/images/UI.png)    
-## Monitoring (Using remote-write pattern)
+
+## 3. Monitoring Architecture (Using remote-write pattern)
 
 ![](assets/images/monitoring-architecture.png)
 + On Each GKE Cluster
@@ -173,11 +161,12 @@ terraform apply
 
     + Weaviate Dashboard
         ![](assets/images/monitoring_weaviate.png)
-## CI/CD
+
+## 4. CI/CD Architecture
 
 ![](assets/images/cicd.png)
 
-## Automatically redirect requests to third-party LLM API
+## 5. Automatically redirect requests to third-party LLM API
 
 Check `auto_redirect` in `rag-controller/settings-prod.yaml` to configure PromSQL and the threshold for redirecting requests to the NVIDIA NIM API.
 ![](assets/images/route_traffic.png)
