@@ -33,6 +33,44 @@
 + [docker-compose](https://docs.docker.com/compose) v2.21.0
 + [ansible](https://docs.ansible.com/ansible/latest/collections/google/cloud/gcp_compute_instance_module.html) v2.13.13
 
+
+**Project structure**
+
+------------
+    ├── embedding/
+    │ ├── helm-charts/                      <- Chart for deployment of Embedding model
+    │ ├── terraform/                        <- Create GKE Embedding cluster (Using Cluster Autoscaling)
+    │ └── gce/
+    │ ├── secret/                           <- Google Cloud credentials
+    │ └── setup/                            <- Setup GCE, deploy Grafana and Jenkins on this GCE
+    ├── monitoring/
+    │ ├── grafana_config/                   <- Grafana configuration, includes datasource and dashboard
+    │ ├── helm-charts/                      <- Chart for deployment of Prometheus Agent on each GKE Cluster
+    │ └── docker-compose.yml                <- Docker Compose for running Monitoring on GCE
+    ├── rag-controller/
+    │ ├── helm-charts/                      <- Chart for deployment of RAG Controller
+    │ ├── src/                              <- Core RAG, customized from https://github.com/zylon-ai/private-gp
+    │ ├── terraform/                        <- Create GKE RAG Controller cluster (Using Cluster Autoscaling)
+    │ ├── .env_local                        <- Environment configuration for local setup
+    │ ├── docker-compose.yml                <- Docker Compose for local deployment
+    │ ├── Dockerfile                        <- Dockerfile for RAG Controller
+    │ ├── main.py                           <- FastAPI app creation for RAG Controller
+    │ ├── poetry.lock
+    │ ├── pyproject.toml
+    │ ├── README.md
+    │ ├── settings-prod.yaml                <- System settings for deployment
+    │ ├── settings.yaml                     <- Settings template
+    │ └── start_local.sh                    <- Script for local deployment
+    ├── reranker-llm/
+    │ ├── .env
+    │ └── docker-compose.yml                <- Docker Compose for LLM and Reranker component deployment on GPU Server
+    └── weaviate/
+    ├── helm-charts/                        <- Helm charts for Weaviate deployment
+    └── terraform/                          <- Create GKE Weaviate cluster (Using Cluster Autoscaling)
+    ├── Jenkinsfile
+    └── README.md
+------------
+
 ### 2.1. Embedding Component
 
 + Create GKE Cluster
